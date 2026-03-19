@@ -48,7 +48,7 @@ button{
   border:none;
   font-weight:bold;
 }
-
+<button onclick="emailResults()">Send Results</button>
 #sliderWrap{
   position:fixed;
   bottom:20px;
@@ -135,7 +135,24 @@ function goEmotion(){
 }
 
 const emotionDiv=document.getElementById("emotion");
+function emailResults(){
+  if(samples.length < 2) return;
 
+  let subject = "Present Experiment Results";
+
+  let body = "Present Experiment Results\n";
+  body += "Send results to: vg23563@bristol.ac.uk\n\n";
+  body += "State (before): " + emotion + "\n\n";
+  body += "time,hz\n";
+
+  samples.forEach(s=>{
+    body += `${s.t.toFixed(3)},${s.hz.toFixed(3)}\n`;
+  });
+
+  const mailto = `mailto:vg23563@bristol.ac.uk?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+  window.location.href = mailto;
+}
 function prep(){
   emotion=emotionSelect.value;
   emotionDiv.style.display="none";
