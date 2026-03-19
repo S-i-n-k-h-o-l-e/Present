@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Present Experiment</title>
+
+<style>
+body, html {
+  margin:0;
+  padding:0;
+  background:black;
+  color:white;
+  font-family:sans-serif;
+  overflow:hidden;
+}
+
+/* FULL SCREEN FLASH */
+#flash {
+  position:fixed;
+  inset:0;
+  background:black;
+}
+
+/* GATE SCREENS */
+.overlay {
+  position:fixed;
+  inset:0;
+  background:black;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  z-index:10;
+}
+
+.box {
+  max-width:400px;
+}
+
+button {
+  padding:12px 20px;
+  border-radius:999px;
+  border:none;
+  font-weight:bold;
+  margin-top:20px;
+}
+
+/* CONTROLS */
+.controls {
+  position:fixed;
+  bottom:20px;
+  width:100%;
+  text-align:center;
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="flash"></div>
+
+<!-- WARNING -->
+<div id="warning" class="overlay">
+  <div class="box">
+    <h2>⚠️ Warning</h2>
+    <p>This contains flashing lights.</p>
+    <p>Do not continue if you have epilepsy.</p>
+    <button onclick="acceptWarning()">I Understand</button>
+  </div>
+</div>
+
+<!-- EMOTION -->
+<div id="emotion" class="overlay" style="display:none;">
+  <div class="box">
+    <h2>How do you feel?</h2>
+
+    <select id="emotionSelect">
+      <option>Calm</option>
+      <option>Focused</option>
+      <option>Anxious</option>
+      <option>Tired</option>
+      <option>Curious</option>
+    </select>
+
+    <br>
+    <button onclick="startApp()">Start</button>
+  </div>
+</div>
+
+<!-- CONTROLS -->
+<div class="controls">
+  <input type="range" id="slider" min="0.5" max="20" step="0.1" value="4">
+</div>
+
+<script>
+
+let running = false;
+let phase = 0;
+let last = 0;
+let emotion = "none";
+
+function acceptWarning(){
+  document.getElementById("warning").style.display = "none";
+  document.getElementById("emotion").style.display = "flex";
+}
+
+function startApp(){
+  emotion = document.getElementById("emotionSelect").value;
+  document.getElementById("emotion").style.display = "none";
+
+  console.log("Emotion:", emotion);
+
+  running = true;
+  requestAnimationFrame(loop);
+}
+
+function loop(t){
+  if(!running) return;
+
+  if(!last) last = t;
+  let dt = (t - last)/1000;
+  last = t;
+
+  let hz = Number(document.getElementById("slider").value);
+
+  phase += dt * hz * Math.PI * 2;
+
+  let brightness = (Math.sin(phase) + 1)/2;
+
+  let v = Math.floor(brightness * 255);
+
+  document.getElementById("flash").style.background =
+    `rgb(${v},${v},${v})`;
+
+  requestAnimationFrame(loop);
+}
+
+</script>
+
+</body>
+</html>
