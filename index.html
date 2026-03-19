@@ -410,63 +410,77 @@
       if (samples.length > 1) drawGraph();
     }
 
-    function drawGraph() {
-      const w = graphCanvas.clientWidth;
-      const h = graphCanvas.clientHeight;
-      g.clearRect(0, 0, w, h);
-      g.fillStyle = '#050505';
-      g.fillRect(0, 0, w, h);
+   <script>
+function drawGraph() {
+  const w = graphCanvas.clientWidth;
+  const h = graphCanvas.clientHeight;
 
-      const pad = { l: 62, r: 26, t: 20, b: 46 };
-      const pw = w - pad.l - pad.r;
-      const ph = h - pad.t - pad.b;
-      if (pw <= 0 || ph <= 0) return;
+  g.clearRect(0, 0, w, h);
+  g.fillStyle = '#050505';
+  g.fillRect(0, 0, w, h);
 
-      const xMin = 0;
-      const xMax = 10;
-      const yMin = 0;
-      const yMax = 20;
+  const pad = { l: 78, r: 44, t: 54, b: 64 };
+  const pw = w - pad.l - pad.r;
+  const ph = h - pad.t - pad.b;
+  if (pw <= 0 || ph <= 0) return;
 
-      g.strokeStyle = 'rgba(255,255,255,0.14)';
-      g.lineWidth = 1;
-      g.font = '12px system-ui, sans-serif';
-      g.fillStyle = 'rgba(255,255,255,0.76)';
+  const xMin = 0;
+  const xMax = 10;
+  const yMin = 0;
+  const yMax = 20;
 
-      for (let y = 0; y <= 20; y += 5) {
-        const py = pad.t + ph - ((y - yMin) / (yMax - yMin)) * ph;
-        g.beginPath();
-        g.moveTo(pad.l, py);
-        g.lineTo(w - pad.r, py);
-        g.stroke();
-        g.fillText(String(y), 24, py + 4);
-      }
+  g.strokeStyle = 'rgba(255,255,255,0.14)';
+  g.lineWidth = 1;
+  g.font = '12px system-ui, sans-serif';
+  g.fillStyle = 'rgba(255,255,255,0.76)';
 
-      for (let x = 0; x <= 10; x += 2) {
-        const px = pad.l + ((x - xMin) / (xMax - xMin)) * pw;
-        g.beginPath();
-        g.moveTo(px, pad.t);
-        g.lineTo(px, h - pad.b);
-        g.stroke();
-        g.fillText(`${x}s`, px - 10, h - 16);
-      }
+  for (let y = 0; y <= 20; y += 5) {
+    const py = pad.t + ph - ((y - yMin) / (yMax - yMin)) * ph;
+    g.beginPath();
+    g.moveTo(pad.l, py);
+    g.lineTo(w - pad.r, py);
+    g.stroke();
+    g.fillText(String(y), pad.l - 34, py + 4);
+  }
 
-      g.strokeStyle = 'rgba(255,255,255,0.92)';
-      g.lineWidth = 2.5;
-      g.beginPath();
+  for (let x = 0; x <= 10; x += 2) {
+    const px = pad.l + ((x - xMin) / (xMax - xMin)) * pw;
+    g.beginPath();
+    g.moveTo(px, pad.t);
+    g.lineTo(px, h - pad.b);
+    g.stroke();
 
-      samples.forEach((s, i) => {
-        const px = pad.l + ((s.t - xMin) / (xMax - xMin)) * pw;
-        const py = pad.t + ph - ((s.hz - yMin) / (yMax - yMin)) * ph;
-        if (i === 0) g.moveTo(px, py);
-        else g.lineTo(px, py);
-      });
+    let labelX = px - 10;
+    if (x === 0) labelX = px - 2;
+    if (x === 10) labelX = px - 18;
 
-      g.stroke();
+    g.fillText(`${x}s`, labelX, h - pad.b + 28);
+  }
 
-      g.fillStyle = 'rgba(255,255,255,0.92)';
-      g.fillText('Hz', 24, 16);
-      g.fillText('Time', w - 54, h - 16);
-    }
+  g.strokeStyle = 'rgba(255,255,255,0.92)';
+  g.lineWidth = 2.5;
+  g.beginPath();
+
+  samples.forEach((s, i) => {
+    const px = pad.l + ((s.t - xMin) / (xMax - xMin)) * pw;
+    const py = pad.t + ph - ((s.hz - yMin) / (yMax - yMin)) * ph;
+    if (i === 0) g.moveTo(px, py);
+    else g.lineTo(px, py);
+  });
+
+  g.stroke();
+
+  g.fillStyle = 'rgba(255,255,255,0.92)';
+  g.font = 'bold 16px system-ui, sans-serif';
+  g.fillText('Present Experiment', pad.l, 28);
+
+  g.font = '13px system-ui, sans-serif';
+  g.fillStyle = 'rgba(255,255,255,0.78)';
+  g.fillText(`State before: ${selectedEmotion}`, pad.l, 46);
+  g.fillText('Hz', pad.l - 34, pad.t - 12);
+  g.fillText('Time', w - pad.r - 34, h - 18);
+}
+</script>
 
     function samplePoint(nowMs) {
       const t = (nowMs - startTime) / 1000;
@@ -624,7 +638,19 @@
     downloadPngBtn.addEventListener('click', downloadPng);
     restartBtn.addEventListener('click', restartFlow);
     window.addEventListener('resize', resizeCanvas);
+function downloadPng() {
+  if (samples.length < 2) return;
 
+  drawGraph();
+
+  const a = document.createElement('a');
+  const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+  a.href = graphCanvas.toDataURL('image/png');
+  a.download = `present_graph_${stamp}.png`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
     resetVisual();
     resizeCanvas();
   </script>
