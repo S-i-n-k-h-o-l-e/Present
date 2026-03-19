@@ -1,143 +1,648 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Present Experiment</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Present Experiment</title>
+  <style>
+    :root{
+      --panel:rgba(10,10,10,0.24);
+      --panel-strong:rgba(10,10,10,0.44);
+      --border:rgba(255,255,255,0.12);
+      --text:#ffffff;
+      --muted:rgba(255,255,255,0.75);
+      --shadow:0 14px 36px rgba(0,0,0,0.35);
+    }
 
-<style>
-body, html {
-  margin:0;
-  padding:0;
-  background:black;
-  color:white;
-  font-family:sans-serif;
-  overflow:hidden;
-}
+    *{
+      box-sizing:border-box;
+      -webkit-tap-highlight-color:transparent;
+    }
 
-/* FULL SCREEN FLASH */
-#flash {
-  position:fixed;
-  inset:0;
-  background:black;
-}
+    html,body{
+      margin:0;
+      width:100%;
+      height:100%;
+      overflow:hidden;
+      background:#000;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    }
 
-/* GATE SCREENS */
-.overlay {
-  position:fixed;
-  inset:0;
-  background:black;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  text-align:center;
-  z-index:10;
-}
+    body{
+      touch-action:none;
+    }
 
-.box {
-  max-width:400px;
-}
+    #flash{
+      position:fixed;
+      inset:0;
+      background:#000;
+      transition:background-color 16ms linear, filter 16ms linear;
+      will-change:background-color,filter;
+    }
 
-button {
-  padding:12px 20px;
-  border-radius:999px;
-  border:none;
-  font-weight:bold;
-  margin-top:20px;
-}
+    .floatingTop{
+      position:fixed;
+      top:18px;
+      left:50%;
+      transform:translateX(-50%);
+      z-index:20;
+      width:min(92vw,980px);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      padding:12px 14px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background:var(--panel);
+      backdrop-filter:blur(14px);
+      -webkit-backdrop-filter:blur(14px);
+      box-shadow:var(--shadow);
+    }
 
-/* CONTROLS */
-.controls {
-  position:fixed;
-  bottom:20px;
-  width:100%;
-  text-align:center;
-}
+    .readoutBlock{
+      display:flex;
+      align-items:baseline;
+      gap:12px;
+      min-width:0;
+      flex-wrap:wrap;
+    }
 
-</style>
+    .hz{
+      color:var(--text);
+      font-size:clamp(1.45rem, 4.5vw, 2.5rem);
+      line-height:1;
+      font-weight:800;
+      white-space:nowrap;
+    }
+
+    .status{
+      color:var(--muted);
+      font-size:0.95rem;
+      white-space:nowrap;
+    }
+
+    .emotionBadge{
+      color:var(--muted);
+      font-size:0.92rem;
+      white-space:nowrap;
+    }
+
+    .buttons{
+      display:flex;
+      gap:10px;
+      flex-shrink:0;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    button{
+      appearance:none;
+      border:none;
+      border-radius:999px;
+      min-width:90px;
+      padding:12px 18px;
+      font-size:0.98rem;
+      font-weight:800;
+      color:#000;
+      background:#fff;
+      box-shadow:0 8px 20px rgba(0,0,0,0.28);
+      cursor:pointer;
+    }
+
+    button.secondary{
+      color:#fff;
+      background:var(--panel-strong);
+      border:1px solid rgba(255,255,255,0.12);
+    }
+
+    button:disabled{
+      opacity:.48;
+      cursor:default;
+    }
+
+    .floatingBottom{
+      position:fixed;
+      left:50%;
+      bottom:18px;
+      transform:translateX(-50%);
+      z-index:20;
+      width:min(92vw,980px);
+      padding:14px 14px 12px;
+      border-radius:28px;
+      border:1px solid var(--border);
+      background:var(--panel);
+      backdrop-filter:blur(14px);
+      -webkit-backdrop-filter:blur(14px);
+      box-shadow:var(--shadow);
+    }
+
+    .sliderWrap{
+      display:grid;
+      gap:10px;
+    }
+
+    input[type="range"]{
+      width:100%;
+      margin:0;
+      appearance:none;
+      background:transparent;
+      height:34px;
+    }
+
+    input[type="range"]::-webkit-slider-runnable-track{
+      height:10px;
+      border-radius:999px;
+      background:linear-gradient(90deg, rgba(255,255,255,0.18), rgba(255,255,255,0.72));
+      border:1px solid rgba(255,255,255,0.12);
+    }
+
+    input[type="range"]::-webkit-slider-thumb{
+      appearance:none;
+      width:28px;
+      height:28px;
+      border-radius:50%;
+      background:#fff;
+      border:none;
+      margin-top:-10px;
+      box-shadow:0 4px 16px rgba(0,0,0,0.35);
+    }
+
+    input[type="range"]::-moz-range-track{
+      height:10px;
+      border-radius:999px;
+      background:linear-gradient(90deg, rgba(255,255,255,0.18), rgba(255,255,255,0.72));
+      border:1px solid rgba(255,255,255,0.12);
+    }
+
+    input[type="range"]::-moz-range-thumb{
+      width:28px;
+      height:28px;
+      border-radius:50%;
+      background:#fff;
+      border:none;
+      box-shadow:0 4px 16px rgba(0,0,0,0.35);
+    }
+
+    .meta{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      color:var(--muted);
+      font-size:0.9rem;
+    }
+
+    .graphPanel{
+      position:fixed;
+      inset:auto 50% 88px auto;
+      transform:translateX(50%);
+      z-index:19;
+      width:min(92vw,980px);
+      height:min(40vh,360px);
+      padding:12px;
+      border-radius:28px;
+      border:1px solid var(--border);
+      background:rgba(0,0,0,0.52);
+      backdrop-filter:blur(18px);
+      -webkit-backdrop-filter:blur(18px);
+      box-shadow:var(--shadow);
+      display:none;
+    }
+
+    .graphPanel.show{
+      display:block;
+    }
+
+    #graphCanvas{
+      width:100%;
+      height:100%;
+      display:block;
+      border-radius:18px;
+      background:rgba(255,255,255,0.02);
+    }
+
+    .overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,0.96);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      z-index:100;
+      padding:24px;
+    }
+
+    .overlayBox{
+      width:min(92vw,520px);
+      padding:28px 24px;
+      border-radius:28px;
+      border:1px solid rgba(255,255,255,0.12);
+      background:rgba(255,255,255,0.04);
+      box-shadow:0 14px 36px rgba(0,0,0,0.35);
+    }
+
+    .overlay h2{
+      margin:0 0 14px;
+      font-size:clamp(1.6rem, 5vw, 2.2rem);
+    }
+
+    .overlay p{
+      margin:0 0 12px;
+      color:rgba(255,255,255,0.82);
+      line-height:1.5;
+    }
+
+    select{
+      width:min(100%, 280px);
+      margin-top:14px;
+      padding:12px 14px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,0.16);
+      background:#111;
+      color:#fff;
+      font-size:1rem;
+    }
+
+    .overlayActions{
+      margin-top:18px;
+      display:flex;
+      justify-content:center;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    @media (max-width:640px){
+      .floatingTop{
+        top:12px;
+        border-radius:26px;
+        flex-direction:column;
+        align-items:stretch;
+      }
+
+      .buttons{
+        width:100%;
+      }
+
+      .buttons button{
+        flex:1;
+      }
+
+      .readoutBlock{
+        justify-content:space-between;
+      }
+
+      .floatingBottom{
+        bottom:12px;
+      }
+
+      .graphPanel{
+        bottom:84px;
+        height:min(36vh,260px);
+      }
+
+      .meta{
+        font-size:0.8rem;
+      }
+    }
+  </style>
 </head>
-
 <body>
+  <div id="flash"></div>
 
-<div id="flash"></div>
-
-<!-- WARNING -->
-<div id="warning" class="overlay">
-  <div class="box">
-    <h2>⚠️ Warning</h2>
-    <p>This contains flashing lights.</p>
-    <p>Do not continue if you have epilepsy.</p>
-    <button onclick="acceptWarning()">I Understand</button>
+  <div id="warningOverlay" class="overlay">
+    <div class="overlayBox">
+      <h2>⚠️ Warning</h2>
+      <p>This experiment contains flashing lights.</p>
+      <p>Do not continue if you have photosensitive epilepsy or if flashing visual stimuli may be unsafe for you.</p>
+      <div class="overlayActions">
+        <button id="warningContinueBtn">I Understand</button>
+      </div>
+    </div>
   </div>
-</div>
 
-<!-- EMOTION -->
-<div id="emotion" class="overlay" style="display:none;">
-  <div class="box">
-    <h2>How do you feel?</h2>
-
-    <select id="emotionSelect">
-      <option>Calm</option>
-      <option>Focused</option>
-      <option>Anxious</option>
-      <option>Tired</option>
-      <option>Curious</option>
-    </select>
-
-    <br>
-    <button onclick="startApp()">Start</button>
+  <div id="emotionOverlay" class="overlay" style="display:none;">
+    <div class="overlayBox">
+      <h2>How do you feel right now?</h2>
+      <p>Select the state that best matches how you feel before starting.</p>
+      <select id="emotionSelect">
+        <option value="Calm">Calm</option>
+        <option value="Focused">Focused</option>
+        <option value="Anxious">Anxious</option>
+        <option value="Tired">Tired</option>
+        <option value="Curious">Curious</option>
+        <option value="Overstimulated">Overstimulated</option>
+      </select>
+      <div class="overlayActions">
+        <button id="beginBtn">Begin</button>
+      </div>
+    </div>
   </div>
-</div>
 
-<!-- CONTROLS -->
-<div class="controls">
-  <input type="range" id="slider" min="0.5" max="20" step="0.1" value="4">
-</div>
+  <div class="floatingTop">
+    <div class="readoutBlock">
+      <div class="hz" id="hzReadout">4.00 Hz</div>
+      <div class="status" id="statusText">Ready · 10.0 s</div>
+      <div class="emotionBadge" id="emotionBadge">State: not set</div>
+    </div>
+    <div class="buttons">
+      <button id="startBtn" disabled>Start</button>
+      <button id="stopBtn" class="secondary" disabled>Stop</button>
+      <button id="downloadCsvBtn" class="secondary" disabled>CSV</button>
+      <button id="downloadPngBtn" class="secondary" disabled>Graph</button>
+    </div>
+  </div>
 
-<script>
+  <div class="graphPanel show" id="graphPanel">
+    <canvas id="graphCanvas"></canvas>
+  </div>
 
-let running = false;
-let phase = 0;
-let last = 0;
-let emotion = "none";
+  <div class="floatingBottom">
+    <div class="sliderWrap">
+      <input id="hzSlider" type="range" min="0.5" max="20" value="4" step="0.01" />
+      <div class="meta">
+        <span>0.5 Hz</span>
+        <span>Visual flash frequency</span>
+        <span>20 Hz</span>
+      </div>
+    </div>
+  </div>
 
-function acceptWarning(){
-  document.getElementById("warning").style.display = "none";
-  document.getElementById("emotion").style.display = "flex";
-}
+  <script>
+    const DURATION_MS = 10000;
 
-function startApp(){
-  emotion = document.getElementById("emotionSelect").value;
-  document.getElementById("emotion").style.display = "none";
+    const flash = document.getElementById('flash');
+    const hzSlider = document.getElementById('hzSlider');
+    const hzReadout = document.getElementById('hzReadout');
+    const statusText = document.getElementById('statusText');
+    const emotionBadge = document.getElementById('emotionBadge');
 
-  console.log("Emotion:", emotion);
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const downloadCsvBtn = document.getElementById('downloadCsvBtn');
+    const downloadPngBtn = document.getElementById('downloadPngBtn');
 
-  running = true;
-  requestAnimationFrame(loop);
-}
+    const warningOverlay = document.getElementById('warningOverlay');
+    const emotionOverlay = document.getElementById('emotionOverlay');
+    const warningContinueBtn = document.getElementById('warningContinueBtn');
+    const beginBtn = document.getElementById('beginBtn');
+    const emotionSelect = document.getElementById('emotionSelect');
 
-function loop(t){
-  if(!running) return;
+    const graphCanvas = document.getElementById('graphCanvas');
+    const g = graphCanvas.getContext('2d');
 
-  if(!last) last = t;
-  let dt = (t - last)/1000;
-  last = t;
+    let selectedEmotion = null;
+    let running = false;
+    let rafId = 0;
+    let phase = 0;
+    let lastTime = 0;
+    let startTime = 0;
+    let samples = [];
 
-  let hz = Number(document.getElementById("slider").value);
+    function currentHz() {
+      return Number(hzSlider.value);
+    }
 
-  phase += dt * hz * Math.PI * 2;
+    function updateReadout() {
+      hzReadout.textContent = currentHz().toFixed(2) + ' Hz';
+    }
 
-  let brightness = (Math.sin(phase) + 1)/2;
+    function setVisual(level) {
+      const l = Math.max(0, Math.min(1, level));
+      const value = Math.round(l * 255);
+      flash.style.backgroundColor = `rgb(${value},${value},${value})`;
+      flash.style.filter = `blur(${(1 - l) * 0.15}px)`;
+    }
 
-  let v = Math.floor(brightness * 255);
+    function updateStatus(msLeft = DURATION_MS) {
+      const secondsLeft = Math.max(0, msLeft / 1000).toFixed(1);
+      if (running) {
+        statusText.textContent = `Running · ${secondsLeft} s`;
+      }
+    }
 
-  document.getElementById("flash").style.background =
-    `rgb(${v},${v},${v})`;
+    function recordSample(now) {
+      samples.push({
+        t: (now - startTime) / 1000,
+        hz: currentHz(),
+        emotion: selectedEmotion || ''
+      });
+    }
 
-  requestAnimationFrame(loop);
-}
+    function resizeCanvas() {
+      const rect = graphCanvas.getBoundingClientRect();
+      const ratio = window.devicePixelRatio || 1;
+      graphCanvas.width = Math.max(1, Math.round(rect.width * ratio));
+      graphCanvas.height = Math.max(1, Math.round(rect.height * ratio));
+      g.setTransform(ratio, 0, 0, ratio, 0, 0);
+      drawGraph();
+    }
 
-</script>
+    function drawGraph() {
+      const w = graphCanvas.clientWidth;
+      const h = graphCanvas.clientHeight;
+      g.clearRect(0, 0, w, h);
+      g.fillStyle = 'rgba(255,255,255,0.02)';
+      g.fillRect(0, 0, w, h);
 
+      const pad = { l: 54, r: 18, t: 18, b: 30 };
+      const pw = w - pad.l - pad.r;
+      const ph = h - pad.t - pad.b;
+      if (pw <= 0 || ph <= 0) return;
+
+      const xMin = 0;
+      const xMax = Math.max(10, samples.length ? samples[samples.length - 1].t : 10);
+      const yMin = 0;
+      const yMax = 20;
+
+      g.strokeStyle = 'rgba(255,255,255,0.12)';
+      g.lineWidth = 1;
+      g.font = '12px system-ui, sans-serif';
+      g.fillStyle = 'rgba(255,255,255,0.72)';
+
+      for (let y = 0; y <= 20; y += 5) {
+        const py = pad.t + ph - ((y - yMin) / (yMax - yMin)) * ph;
+        g.beginPath();
+        g.moveTo(pad.l, py);
+        g.lineTo(w - pad.r, py);
+        g.stroke();
+        g.fillText(String(y), 12, py + 4);
+      }
+
+      for (let x = 0; x <= 10; x += 2) {
+        const px = pad.l + ((x - xMin) / (xMax - xMin)) * pw;
+        g.beginPath();
+        g.moveTo(px, pad.t);
+        g.lineTo(px, h - pad.b);
+        g.stroke();
+        g.fillText(x + 's', px - 10, h - 8);
+      }
+
+      g.strokeStyle = 'rgba(255,255,255,0.92)';
+      g.lineWidth = 2;
+      g.beginPath();
+
+      if (samples.length) {
+        samples.forEach((s, i) => {
+          const px = pad.l + ((s.t - xMin) / (xMax - xMin)) * pw;
+          const py = pad.t + ph - ((s.hz - yMin) / (yMax - yMin)) * ph;
+          if (i === 0) g.moveTo(px, py);
+          else g.lineTo(px, py);
+        });
+      }
+
+      g.stroke();
+
+      g.fillStyle = 'rgba(255,255,255,0.92)';
+      g.fillText('Hz', 14, 16);
+      g.fillText('Time', w - 48, h - 8);
+    }
+
+    function updateDownloadState() {
+      const hasSamples = samples.length > 1;
+      downloadCsvBtn.disabled = !hasSamples;
+      downloadPngBtn.disabled = !hasSamples;
+    }
+
+    function startSession() {
+      if (running || !selectedEmotion) return;
+
+      running = true;
+      phase = 0;
+      lastTime = 0;
+      startTime = performance.now();
+      samples = [{ t: 0, hz: currentHz(), emotion: selectedEmotion }];
+
+      statusText.textContent = 'Running · 10.0 s';
+      startBtn.disabled = true;
+      stopBtn.disabled = false;
+      hzSlider.disabled = false;
+
+      updateDownloadState();
+      drawGraph();
+
+      document.documentElement.requestFullscreen?.().catch(() => {});
+      rafId = requestAnimationFrame(animate);
+    }
+
+    function stopSession(autoFinished = false) {
+      if (!running && samples.length < 2) {
+        statusText.textContent = 'Ready · 10.0 s';
+        return;
+      }
+
+      running = false;
+      cancelAnimationFrame(rafId);
+      setVisual(0);
+      updateReadout();
+
+      if (samples.length > 0) {
+        recordSample(performance.now());
+      }
+
+      drawGraph();
+      updateDownloadState();
+
+      startBtn.disabled = false;
+      stopBtn.disabled = true;
+
+      statusText.textContent = autoFinished
+        ? 'Complete · graph ready'
+        : 'Stopped · graph ready';
+    }
+
+    function animate(now) {
+      if (!running) return;
+
+      if (!lastTime) lastTime = now;
+      const dt = Math.max(0, (now - lastTime) / 1000);
+      lastTime = now;
+
+      const elapsed = now - startTime;
+      const hz = currentHz();
+
+      phase += dt * hz * Math.PI * 2;
+
+      const wave = 0.5 + 0.5 * Math.sin(phase);
+      const brightness = Math.pow(wave, 0.78);
+
+      setVisual(brightness);
+      updateReadout();
+      updateStatus(DURATION_MS - elapsed);
+      recordSample(now);
+      drawGraph();
+
+      if (elapsed >= DURATION_MS) {
+        stopSession(true);
+        return;
+      }
+
+      rafId = requestAnimationFrame(animate);
+    }
+
+    function downloadCsv() {
+      if (samples.length < 2) return;
+
+      const rows = ['time_seconds,hz,emotion'];
+      for (const s of samples) {
+        rows.push(`${s.t.toFixed(4)},${s.hz.toFixed(4)},"${s.emotion}"`);
+      }
+
+      const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+
+      a.href = url;
+      a.download = `present_session_${stamp}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    function downloadPng() {
+      if (samples.length < 2) return;
+
+      const a = document.createElement('a');
+      const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+      a.href = graphCanvas.toDataURL('image/png');
+      a.download = `present_graph_${stamp}.png`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+
+    warningContinueBtn.addEventListener('click', () => {
+      warningOverlay.style.display = 'none';
+      emotionOverlay.style.display = 'flex';
+    });
+
+    beginBtn.addEventListener('click', () => {
+      selectedEmotion = emotionSelect.value;
+      emotionBadge.textContent = `State: ${selectedEmotion}`;
+      emotionOverlay.style.display = 'none';
+      startBtn.disabled = false;
+      statusText.textContent = 'Ready · 10.0 s';
+    });
+
+    hzSlider.addEventListener('input', () => {
+      updateReadout();
+      if (!running) drawGraph();
+    });
+
+    startBtn.addEventListener('click', startSession);
+    stopBtn.addEventListener('click', () => stopSession(false));
+    downloadCsvBtn.addEventListener('click', downloadCsv);
+    downloadPngBtn.addEventListener('click', downloadPng);
+    window.addEventListener('resize', resizeCanvas);
+
+    updateReadout();
+    setVisual(0);
+    resizeCanvas();
+    updateDownloadState();
+  </script>
 </body>
 </html>
