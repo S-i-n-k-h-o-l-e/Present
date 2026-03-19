@@ -1,283 +1,687 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Present Experiment</title>
-
-<style>
-body{
-  margin:0;
-  background:black;
-  color:white;
-  font-family:sans-serif;
-  overflow:hidden;
-}
-
-#flash{
-  position:fixed;
-  inset:0;
-  background:black;
-}
-
-#dot{
-  position:fixed;
-  left:50%;
-  top:50%;
-  width:10px;
-  height:10px;
-  margin:-5px;
-  background:white;
-  border-radius:50%;
-  display:none;
-}
-
-.overlay{
-  position:fixed;
-  inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  background:black;
-}
-
-button{
-  padding:14px 22px;
-  border-radius:999px;
-  border:none;
-  font-weight:bold;
-}
-<button onclick="emailResults()">Send Results</button>
-#sliderWrap{
-  position:fixed;
-  bottom:20px;
-  width:100%;
-  text-align:center;
-  display:none;
-}
-
-#results{
-  position:fixed;
-  inset:0;
-  background:black;
-  display:none;
-}
-
-canvas{
-  width:100%;
-  height:60vh;
-  background:#050505;
-}
-</style>
-</head>
-
-<body>
-
-<div id="flash"></div>
-<div id="dot"></div>
-
-<div id="warning" class="overlay">
-  <div>
-    <h1>⚠️ Warning</h1>
-    <p>Flashing lights present</p>
-    <button onclick="goEmotion()">I Understand</button>
-  </div>
-</div>
-
-<div id="emotion" class="overlay" style="display:none;">
-  <div>
-    <h1>State before?</h1>
-    <select id="emotionSelect">
-      <option>Calm</option>
-      <option>Focused</option>
-      <option>Anxious</option>
-      <option>Tired</option>
-    </select>
-    <br><br>
-    <button onclick="prep()">Start</button>
-  </div>
-</div>
-
-<div id="count" class="overlay" style="display:none;">
-  <h1 id="countText">3</h1>
-</div>
-
-<div id="sliderWrap">
-  <input id="slider" type="range" min="0.5" max="20" step="0.01" value="4" style="width:80%">
-</div>
-
-<div id="results">
-  <h2 id="meta"></h2>
-  <canvas id="graph"></canvas>
-  <br>
-  <button onclick="downloadCSV()">CSV</button>
-  <button onclick="downloadPNG()">Graph</button>
-</div>
-
-<script>
-
-let running=false;
-let startTime=0;
-let phase=0;
-let samples=[];
-let emotion="";
-let lastSample=0;
-
-const flash=document.getElementById("flash");
-const slider=document.getElementById("slider");
-const graph=document.getElementById("graph");
-const ctx=graph.getContext("2d");
-
-function goEmotion(){
-  warning.style.display="none";
-  emotionDiv.style.display="flex";
-}
-
-const emotionDiv=document.getElementById("emotion");
-function emailResults(){
-  if(samples.length < 2) return;
-
-  let subject = "Present Experiment Results";
-
-  let body = "Present Experiment Results\n";
-  body += "Send results to: vg23563@bristol.ac.uk\n\n";
-  body += "State (before): " + emotion + "\n\n";
-  body += "time,hz\n";
-
-  samples.forEach(s=>{
-    body += `${s.t.toFixed(3)},${s.hz.toFixed(3)}\n`;
-  });
-
-  const mailto = `mailto:vg23563@bristol.ac.uk?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-
-  window.location.href = mailto;
-}
-function prep(){
-  emotion=emotionSelect.value;
-  emotionDiv.style.display="none";
-  count.style.display="flex";
-
-  let c=3;
-  countText.innerText=c;
-
-  let t=setInterval(()=>{
-    c--;
-    countText.innerText=c;
-    if(c<=0){
-      clearInterval(t);
-      count.style.display="none";
-      start();
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Present Experiment</title>
+  <style>
+    :root{
+      --panel: rgba(10,10,10,0.34);
+      --border: rgba(255,255,255,0.12);
+      --text: #ffffff;
+      --muted: rgba(255,255,255,0.78);
+      --shadow: 0 14px 36px rgba(0,0,0,0.35);
     }
-  },1000);
-}
 
-function start(){
-  running=true;
-  startTime=performance.now();
-  samples=[];
-  sliderWrap.style.display="block";
-  dot.style.display="block";
-  requestAnimationFrame(loop);
-}
+    *{
+      box-sizing:border-box;
+      -webkit-tap-highlight-color:transparent;
+    }
 
-function loop(t){
-  if(!running) return;
+    html, body{
+      margin:0;
+      width:100%;
+      height:100%;
+      overflow:hidden;
+      background:#000;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    }
 
-  let dt=(t-startTime)/1000;
-  let hz=Number(slider.value);
+    body{
+      touch-action:none;
+    }
 
-  phase+=hz*0.1;
-  let v=(Math.sin(phase)+1)/2*255;
-  flash.style.background=`rgb(${v},${v},${v})`;
+    #flash{
+      position:fixed;
+      inset:0;
+      background:#000;
+      z-index:1;
+      will-change:background-color;
+    }
 
-  if(dt-lastSample>0.05){
-    samples.push({t:dt,hz:hz});
-    lastSample=dt;
-  }
+    #focusDot{
+      position:fixed;
+      left:50%;
+      top:50%;
+      width:10px;
+      height:10px;
+      margin-left:-5px;
+      margin-top:-5px;
+      border-radius:50%;
+      background:rgba(255,255,255,0.85);
+      box-shadow:0 0 18px rgba(255,255,255,0.3);
+      z-index:5;
+      display:none;
+      pointer-events:none;
+    }
 
-  if(dt>=10){
-    finish();
-    return;
-  }
+    .overlay{
+      position:fixed;
+      inset:0;
+      background:#000;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      z-index:100;
+      padding:24px;
+    }
 
-  requestAnimationFrame(loop);
-}
+    .overlayBox{
+      width:min(92vw, 620px);
+      padding:24px;
+    }
 
-function finish(){
-  running=false;
-  sliderWrap.style.display="none";
-  dot.style.display="none";
-  results.style.display="block";
+    .overlay h1,
+    .overlay h2{
+      margin:0 0 18px;
+      color:#fff;
+      font-size:clamp(2rem, 5vw, 4rem);
+      line-height:1.05;
+      font-weight:800;
+    }
 
-  meta.innerHTML=`<b>State (before): ${emotion}</b><br>10 seconds`;
+    .overlay p{
+      margin:0 auto 14px;
+      color:rgba(255,255,255,0.82);
+      line-height:1.5;
+      font-size:clamp(1rem, 2vw, 1.1rem);
+      max-width:560px;
+    }
 
-  drawGraph();
-}
+    .overlayActions{
+      margin-top:22px;
+      display:flex;
+      justify-content:center;
+      gap:14px;
+      flex-wrap:wrap;
+    }
 
-function drawGraph(){
-  let w=graph.clientWidth;
-  let h=graph.clientHeight;
+    button{
+      appearance:none;
+      border:none;
+      border-radius:999px;
+      min-width:120px;
+      padding:16px 24px;
+      font-size:1.05rem;
+      font-weight:800;
+      color:#000;
+      background:#fff;
+      box-shadow:0 8px 20px rgba(0,0,0,0.28);
+      cursor:pointer;
+    }
 
-  graph.width=w;
-  graph.height=h;
+    button.secondary{
+      color:#fff;
+      background:rgba(255,255,255,0.08);
+      border:1px solid rgba(255,255,255,0.14);
+    }
 
-  ctx.fillStyle="#050505";
-  ctx.fillRect(0,0,w,h);
-ctx.fillStyle="rgba(255,255,255,0.7)";
-ctx.fillText("Send results to: vg23563@bristol.ac.uk", pad, 70);
-  let pad=80;
-  let pw=w-pad*2;
-  let ph=h-pad*2;
+    button:disabled{
+      opacity:.48;
+      cursor:default;
+    }
 
-  ctx.strokeStyle="white";
-  ctx.beginPath();
+    select{
+      width:min(100%, 280px);
+      margin-top:8px;
+      padding:12px 14px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,0.16);
+      background:#111;
+      color:#fff;
+      font-size:1rem;
+    }
 
-  samples.forEach((s,i)=>{
-    let x=pad+(s.t/10)*pw;
-    let y=pad+ph-(s.hz/20)*ph;
-    if(i===0) ctx.moveTo(x,y);
-    else ctx.lineTo(x,y);
-  });
+    .countdownText{
+      font-size:clamp(1.3rem, 3vw, 2rem);
+      color:rgba(255,255,255,0.82);
+      margin-top:10px;
+    }
 
-  ctx.stroke();
+    #sliderPanel{
+      position:fixed;
+      left:50%;
+      bottom:18px;
+      transform:translateX(-50%);
+      z-index:20;
+      width:min(92vw,980px);
+      padding:14px 14px 12px;
+      border-radius:28px;
+      border:1px solid var(--border);
+      background:var(--panel);
+      backdrop-filter:blur(14px);
+      -webkit-backdrop-filter:blur(14px);
+      box-shadow:var(--shadow);
+      display:none;
+    }
 
-  ctx.fillStyle="white";
-  ctx.fillText("Present Experiment",pad,30);
-  ctx.fillText("State: "+emotion,pad,50);
-  ctx.fillText("Hz",pad-30,pad);
-  ctx.fillText("Time",w-pad-40,h-pad+30);
-}
+    .sliderWrap{
+      display:grid;
+      gap:10px;
+    }
 
-function downloadCSV(){
-  let rows=[
-    "Present Experiment Data",
-    "Send results to: vg23563@bristol.ac.uk",
-    "",
-    "time,hz,emotion"
-  ];
+    input[type="range"]{
+      width:100%;
+      margin:0;
+      appearance:none;
+      background:transparent;
+      height:34px;
+    }
 
-  samples.forEach(s=>{
-    rows.push(`${s.t},${s.hz},${emotion}`);
-  });
+    input[type="range"]::-webkit-slider-runnable-track{
+      height:10px;
+      border-radius:999px;
+      background:linear-gradient(90deg, rgba(255,255,255,0.18), rgba(255,255,255,0.72));
+      border:1px solid rgba(255,255,255,0.12);
+    }
 
-  let blob=new Blob([rows.join("\n")]);
-  let a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download="data.csv";
-  a.click();
-}
+    input[type="range"]::-webkit-slider-thumb{
+      appearance:none;
+      width:28px;
+      height:28px;
+      border-radius:50%;
+      background:#fff;
+      border:none;
+      margin-top:-10px;
+      box-shadow:0 4px 16px rgba(0,0,0,0.35);
+    }
 
-function downloadPNG(){
-  drawGraph();
+    input[type="range"]::-moz-range-track{
+      height:10px;
+      border-radius:999px;
+      background:linear-gradient(90deg, rgba(255,255,255,0.18), rgba(255,255,255,0.72));
+      border:1px solid rgba(255,255,255,0.12);
+    }
 
-  let a=document.createElement("a");
-  a.href=graph.toDataURL();
-  a.download="graph.png";
-  a.click();
-}
+    input[type="range"]::-moz-range-thumb{
+      width:28px;
+      height:28px;
+      border-radius:50%;
+      background:#fff;
+      border:none;
+      box-shadow:0 4px 16px rgba(0,0,0,0.35);
+    }
 
-</script>
+    .meta{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      color:var(--muted);
+      font-size:0.95rem;
+    }
 
+    #resultsPanel{
+      position:fixed;
+      inset:0;
+      z-index:50;
+      background:#000;
+      display:none;
+      padding:24px;
+      overflow:auto;
+    }
+
+    .resultsInner{
+      width:min(94vw, 1200px);
+      margin:0 auto;
+      display:grid;
+      gap:18px;
+    }
+
+    .resultsTop{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:16px;
+      flex-wrap:wrap;
+      color:#fff;
+    }
+
+    .resultsTitle{
+      font-size:clamp(1.4rem, 3vw, 2.2rem);
+      font-weight:800;
+    }
+
+    .resultsMeta{
+      color:var(--muted);
+      font-size:1rem;
+      line-height:1.4;
+    }
+
+    .resultsButtons{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .graphPanel{
+      padding:16px;
+      border-radius:28px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,0.03);
+      box-shadow:var(--shadow);
+    }
+
+    #graphCanvas{
+      width:100%;
+      height:min(54vh, 460px);
+      display:block;
+      border-radius:18px;
+      background:#050505;
+    }
+
+    .sendHint{
+      color:rgba(255,255,255,0.68);
+      font-size:0.95rem;
+      margin-top:-6px;
+    }
+
+    @media (max-width:640px){
+      #sliderPanel{
+        bottom:12px;
+      }
+
+      .meta{
+        font-size:0.82rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="flash"></div>
+  <div id="focusDot"></div>
+
+  <div id="warningOverlay" class="overlay">
+    <div class="overlayBox">
+      <h2>⚠️ Warning</h2>
+      <p>This experiment contains flashing lights.</p>
+      <p>Do not continue if you have photosensitive epilepsy or if flashing visual stimuli may be unsafe for you.</p>
+      <div class="overlayActions">
+        <button id="warningContinueBtn">I Understand</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="emotionOverlay" class="overlay" style="display:none;">
+    <div class="overlayBox">
+      <h1>How do you feel?</h1>
+      <select id="emotionSelect">
+        <option value="Calm">Calm</option>
+        <option value="Focused">Focused</option>
+        <option value="Anxious">Anxious</option>
+        <option value="Tired">Tired</option>
+        <option value="Curious">Curious</option>
+        <option value="Overstimulated">Overstimulated</option>
+      </select>
+      <div class="overlayActions">
+        <button id="beginBtn">Start</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="instructionOverlay" class="overlay" style="display:none;">
+    <div class="overlayBox">
+      <h2>You have 10 seconds</h2>
+      <p>Interact with the slider to change the flashing frequency.</p>
+      <p>When this message disappears, the session begins.</p>
+      <div class="countdownText" id="instructionCountdown">Starting in 3…</div>
+    </div>
+  </div>
+
+  <div id="sliderPanel">
+    <div class="sliderWrap">
+      <input id="hzSlider" type="range" min="0.5" max="20" value="4" step="0.01" />
+      <div class="meta">
+        <span>0.5 Hz</span>
+        <span>Visual flash frequency</span>
+        <span>20 Hz</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="resultsPanel">
+    <div class="resultsInner">
+      <div class="resultsTop">
+        <div>
+          <div class="resultsTitle">Results</div>
+          <div class="resultsMeta" id="resultsMeta">State: not set</div>
+        </div>
+        <div class="resultsButtons">
+          <button id="restartBtn" class="secondary">Restart</button>
+          <button id="downloadCsvBtn">Download CSV</button>
+          <button id="downloadPngBtn">Download Graph</button>
+          <button id="emailResultsBtn">Send Results</button>
+        </div>
+      </div>
+
+      <div class="sendHint">Send results to: vg23563@bristol.ac.uk</div>
+
+      <div class="graphPanel">
+        <canvas id="graphCanvas"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const DURATION_MS = 10000;
+    const PREP_COUNTDOWN_SECONDS = 3;
+    const RESULTS_EMAIL = 'vg23563@bristol.ac.uk';
+
+    const flash = document.getElementById('flash');
+    const focusDot = document.getElementById('focusDot');
+
+    const warningOverlay = document.getElementById('warningOverlay');
+    const emotionOverlay = document.getElementById('emotionOverlay');
+    const instructionOverlay = document.getElementById('instructionOverlay');
+    const instructionCountdown = document.getElementById('instructionCountdown');
+
+    const warningContinueBtn = document.getElementById('warningContinueBtn');
+    const beginBtn = document.getElementById('beginBtn');
+    const emotionSelect = document.getElementById('emotionSelect');
+
+    const sliderPanel = document.getElementById('sliderPanel');
+    const hzSlider = document.getElementById('hzSlider');
+
+    const resultsPanel = document.getElementById('resultsPanel');
+    const resultsMeta = document.getElementById('resultsMeta');
+    const restartBtn = document.getElementById('restartBtn');
+    const downloadCsvBtn = document.getElementById('downloadCsvBtn');
+    const downloadPngBtn = document.getElementById('downloadPngBtn');
+    const emailResultsBtn = document.getElementById('emailResultsBtn');
+
+    const graphCanvas = document.getElementById('graphCanvas');
+    const g = graphCanvas.getContext('2d');
+
+    let selectedEmotion = '';
+    let running = false;
+    let rafId = 0;
+    let phase = 0;
+    let lastTime = 0;
+    let startTime = 0;
+    let prepInterval = null;
+    let samples = [];
+    let lastSampleTime = -1;
+
+    function setVisual(level) {
+      const l = Math.max(0, Math.min(1, level));
+      const value = Math.round(l * 255);
+      flash.style.backgroundColor = `rgb(${value},${value},${value})`;
+    }
+
+    function resetVisual() {
+      flash.style.backgroundColor = '#000';
+    }
+
+    function resizeCanvas() {
+      const rect = graphCanvas.getBoundingClientRect();
+      const ratio = window.devicePixelRatio || 1;
+      graphCanvas.width = Math.max(1, Math.round(rect.width * ratio));
+      graphCanvas.height = Math.max(1, Math.round(rect.height * ratio));
+      g.setTransform(ratio, 0, 0, ratio, 0, 0);
+      if (samples.length > 1) drawGraph();
+    }
+
+    function drawGraph() {
+      const w = graphCanvas.clientWidth;
+      const h = graphCanvas.clientHeight;
+
+      g.clearRect(0, 0, w, h);
+      g.fillStyle = '#050505';
+      g.fillRect(0, 0, w, h);
+
+      const pad = { l: 78, r: 56, t: 54, b: 70 };
+      const pw = w - pad.l - pad.r;
+      const ph = h - pad.t - pad.b;
+      if (pw <= 0 || ph <= 0) return;
+
+      const xMin = 0;
+      const xMax = 10;
+      const yMin = 0;
+      const yMax = 20;
+
+      g.strokeStyle = 'rgba(255,255,255,0.14)';
+      g.lineWidth = 1;
+      g.font = '12px system-ui, sans-serif';
+      g.fillStyle = 'rgba(255,255,255,0.76)';
+
+      for (let y = 0; y <= 20; y += 5) {
+        const py = pad.t + ph - ((y - yMin) / (yMax - yMin)) * ph;
+        g.beginPath();
+        g.moveTo(pad.l, py);
+        g.lineTo(w - pad.r, py);
+        g.stroke();
+        g.fillText(String(y), pad.l - 36, py + 4);
+      }
+
+      for (let x = 0; x <= 10; x += 2) {
+        const px = pad.l + ((x - xMin) / (xMax - xMin)) * pw;
+        g.beginPath();
+        g.moveTo(px, pad.t);
+        g.lineTo(px, h - pad.b);
+        g.stroke();
+
+        let labelX = px - 10;
+        if (x === 0) labelX = px - 2;
+        if (x === 10) labelX = px - 22;
+
+        g.fillText(`${x}s`, labelX, h - pad.b + 30);
+      }
+
+      g.strokeStyle = 'rgba(255,255,255,0.92)';
+      g.lineWidth = 2.5;
+      g.beginPath();
+
+      samples.forEach((s, i) => {
+        const px = pad.l + ((s.t - xMin) / (xMax - xMin)) * pw;
+        const py = pad.t + ph - ((s.hz - yMin) / (yMax - yMin)) * ph;
+        if (i === 0) g.moveTo(px, py);
+        else g.lineTo(px, py);
+      });
+
+      g.stroke();
+
+      g.fillStyle = 'rgba(255,255,255,0.92)';
+      g.font = 'bold 16px system-ui, sans-serif';
+      g.fillText('Present Experiment', pad.l, 28);
+
+      g.font = '13px system-ui, sans-serif';
+      g.fillStyle = 'rgba(255,255,255,0.78)';
+      g.fillText(`State before: ${selectedEmotion}`, pad.l, 46);
+      g.fillText(`Send results to: ${RESULTS_EMAIL}`, pad.l + 220, 46);
+
+      g.fillStyle = 'rgba(255,255,255,0.92)';
+      g.fillText('Hz', pad.l - 36, pad.t - 14);
+      g.fillText('Time', w - pad.r - 42, h - 22);
+    }
+
+    function samplePoint(nowMs) {
+      const t = (nowMs - startTime) / 1000;
+      if (t < 0) return;
+
+      if (lastSampleTime >= 0 && (t - lastSampleTime) < 0.05) return;
+      lastSampleTime = t;
+
+      samples.push({
+        t: Math.min(10, t),
+        hz: Number(hzSlider.value),
+        emotion: selectedEmotion
+      });
+    }
+
+    function showInstructionThenStart() {
+      let remaining = PREP_COUNTDOWN_SECONDS;
+      instructionCountdown.textContent = `Starting in ${remaining}…`;
+      instructionOverlay.style.display = 'flex';
+
+      prepInterval = setInterval(() => {
+        remaining -= 1;
+        if (remaining > 0) {
+          instructionCountdown.textContent = `Starting in ${remaining}…`;
+        } else {
+          clearInterval(prepInterval);
+          instructionOverlay.style.display = 'none';
+          startSession();
+        }
+      }, 1000);
+    }
+
+    function startSession() {
+      resultsPanel.style.display = 'none';
+      sliderPanel.style.display = 'block';
+      focusDot.style.display = 'block';
+
+      running = true;
+      phase = 0;
+      lastTime = 0;
+      startTime = performance.now();
+      lastSampleTime = -1;
+      samples = [];
+
+      samplePoint(startTime);
+
+      document.documentElement.requestFullscreen?.().catch(() => {});
+      rafId = requestAnimationFrame(animate);
+    }
+
+    function finishSession() {
+      running = false;
+      cancelAnimationFrame(rafId);
+
+      samplePoint(performance.now());
+      resetVisual();
+
+      sliderPanel.style.display = 'none';
+      focusDot.style.display = 'none';
+
+      resultsMeta.innerHTML = `
+        <div style="font-size:1.1rem;">
+          <strong>State (before): ${selectedEmotion}</strong>
+        </div>
+        <div style="opacity:0.6; font-size:0.9rem; margin-top:4px;">
+          10 second session
+        </div>
+      `;
+
+      resultsPanel.style.display = 'block';
+      resizeCanvas();
+      drawGraph();
+    }
+
+    function animate(now) {
+      if (!running) return;
+
+      if (!lastTime) lastTime = now;
+      const dt = Math.max(0, (now - lastTime) / 1000);
+      lastTime = now;
+
+      const elapsed = now - startTime;
+      const hz = Number(hzSlider.value);
+
+      phase += dt * hz * Math.PI * 2;
+
+      const wave = 0.5 + 0.5 * Math.sin(phase);
+      const brightness = Math.pow(wave, 0.86);
+      setVisual(brightness);
+
+      samplePoint(now);
+
+      if (elapsed >= DURATION_MS) {
+        finishSession();
+        return;
+      }
+
+      rafId = requestAnimationFrame(animate);
+    }
+
+    function downloadCsv() {
+      if (samples.length < 2) return;
+
+      const rows = [
+        'Present Experiment Data',
+        `Send results to: ${RESULTS_EMAIL}`,
+        `State before: ${selectedEmotion}`,
+        '',
+        'time_seconds,hz,emotion'
+      ];
+
+      for (const s of samples) {
+        rows.push(`${s.t.toFixed(4)},${s.hz.toFixed(4)},"${s.emotion}"`);
+      }
+
+      const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+      a.href = url;
+      a.download = `present_session_${stamp}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    function downloadPng() {
+      if (samples.length < 2) return;
+
+      drawGraph();
+
+      const a = document.createElement('a');
+      const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+      a.href = graphCanvas.toDataURL('image/png');
+      a.download = `present_graph_${stamp}.png`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+
+    function emailResults() {
+      if (samples.length < 2) return;
+
+      let subject = 'Present Experiment Results';
+      let body = 'Present Experiment Results\n';
+      body += `Send results to: ${RESULTS_EMAIL}\n\n`;
+      body += `State (before): ${selectedEmotion}\n`;
+      body += 'Duration: 10 seconds\n\n';
+      body += 'time_seconds,hz\n';
+
+      samples.forEach((s) => {
+        body += `${s.t.toFixed(3)},${s.hz.toFixed(3)}\n`;
+      });
+
+      const mailto = `mailto:${RESULTS_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      window.location.href = mailto;
+    }
+
+    function restartFlow() {
+      resultsPanel.style.display = 'none';
+      warningOverlay.style.display = 'none';
+      emotionOverlay.style.display = 'flex';
+      instructionOverlay.style.display = 'none';
+      sliderPanel.style.display = 'none';
+      focusDot.style.display = 'none';
+      resetVisual();
+    }
+
+    warningContinueBtn.addEventListener('click', () => {
+      warningOverlay.style.display = 'none';
+      emotionOverlay.style.display = 'flex';
+    });
+
+    beginBtn.addEventListener('click', () => {
+      selectedEmotion = emotionSelect.value;
+      emotionOverlay.style.display = 'none';
+      showInstructionThenStart();
+    });
+
+    downloadCsvBtn.addEventListener('click', downloadCsv);
+    downloadPngBtn.addEventListener('click', downloadPng);
+    emailResultsBtn.addEventListener('click', emailResults);
+    restartBtn.addEventListener('click', restartFlow);
+    window.addEventListener('resize', resizeCanvas);
+
+    resetVisual();
+    resizeCanvas();
+  </script>
 </body>
 </html>
