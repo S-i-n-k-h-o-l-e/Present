@@ -68,7 +68,7 @@
     }
 
     .overlayBox{
-      width:min(92vw, 620px);
+      width:min(92vw, 760px);
       padding:24px;
     }
 
@@ -76,21 +76,21 @@
     .overlay h2{
       margin:0 0 18px;
       color:#fff;
-      font-size:clamp(2rem, 5vw, 4rem);
+      font-size:clamp(2rem, 6vw, 5rem);
       line-height:1.05;
       font-weight:800;
     }
 
     .overlay p{
-      margin:0 auto 14px;
-      color:rgba(255,255,255,0.82);
+      margin:0 auto 16px;
+      color:rgba(255,255,255,0.84);
       line-height:1.5;
-      font-size:clamp(1rem, 2vw, 1.1rem);
-      max-width:560px;
+      font-size:clamp(1rem, 2.4vw, 1.2rem);
+      max-width:760px;
     }
 
     .overlayActions{
-      margin-top:22px;
+      margin-top:24px;
       display:flex;
       justify-content:center;
       gap:14px;
@@ -101,8 +101,8 @@
       appearance:none;
       border:none;
       border-radius:999px;
-      min-width:120px;
-      padding:16px 24px;
+      min-width:140px;
+      padding:16px 26px;
       font-size:1.05rem;
       font-weight:800;
       color:#000;
@@ -133,10 +133,14 @@
       font-size:1rem;
     }
 
-    .countdownText{
-      font-size:clamp(1.3rem, 3vw, 2rem);
-      color:rgba(255,255,255,0.82);
-      margin-top:10px;
+    .prepLead{
+      font-size:clamp(1.2rem, 3vw, 1.6rem);
+      color:#fff;
+      margin-bottom:18px;
+    }
+
+    .prepHint{
+      opacity:0.72;
     }
 
     #sliderPanel{
@@ -315,7 +319,7 @@
         <option value="Overstimulated">Overstimulated</option>
       </select>
       <div class="overlayActions">
-        <button id="beginBtn">Start</button>
+        <button id="beginBtn">Continue</button>
       </div>
     </div>
   </div>
@@ -323,9 +327,12 @@
   <div id="instructionOverlay" class="overlay" style="display:none;">
     <div class="overlayBox">
       <h2>You have 10 seconds</h2>
-      <p>Interact with the slider to change the flashing frequency.</p>
-      <p>When this message disappears, the session begins.</p>
-      <div class="countdownText" id="instructionCountdown">Starting in 3…</div>
+      <p class="prepLead">Interact with the slider to change the flashing frequency.</p>
+      <p>When you press begin, the message disappears and the session starts immediately.</p>
+      <p class="prepHint">Take a moment if needed, then tap when ready.</p>
+      <div class="overlayActions">
+        <button id="startSessionBtn">Begin Session</button>
+      </div>
     </div>
   </div>
 
@@ -365,7 +372,6 @@
 
   <script>
     const DURATION_MS = 10000;
-    const PREP_COUNTDOWN_SECONDS = 3;
     const RESULTS_EMAIL = 'vg23563@bristol.ac.uk';
 
     const flash = document.getElementById('flash');
@@ -374,10 +380,10 @@
     const warningOverlay = document.getElementById('warningOverlay');
     const emotionOverlay = document.getElementById('emotionOverlay');
     const instructionOverlay = document.getElementById('instructionOverlay');
-    const instructionCountdown = document.getElementById('instructionCountdown');
 
     const warningContinueBtn = document.getElementById('warningContinueBtn');
     const beginBtn = document.getElementById('beginBtn');
+    const startSessionBtn = document.getElementById('startSessionBtn');
     const emotionSelect = document.getElementById('emotionSelect');
 
     const sliderPanel = document.getElementById('sliderPanel');
@@ -399,7 +405,6 @@
     let phase = 0;
     let lastTime = 0;
     let startTime = 0;
-    let prepInterval = null;
     let samples = [];
     let lastSampleTime = -1;
 
@@ -509,24 +514,12 @@
       });
     }
 
-    function showInstructionThenStart() {
-      let remaining = PREP_COUNTDOWN_SECONDS;
-      instructionCountdown.textContent = `Starting in ${remaining}…`;
+    function showInstructionScreen() {
       instructionOverlay.style.display = 'flex';
-
-      prepInterval = setInterval(() => {
-        remaining -= 1;
-        if (remaining > 0) {
-          instructionCountdown.textContent = `Starting in ${remaining}…`;
-        } else {
-          clearInterval(prepInterval);
-          instructionOverlay.style.display = 'none';
-          startSession();
-        }
-      }, 1000);
     }
 
     function startSession() {
+      instructionOverlay.style.display = 'none';
       resultsPanel.style.display = 'none';
       sliderPanel.style.display = 'block';
       focusDot.style.display = 'block';
@@ -671,9 +664,10 @@
     beginBtn.addEventListener('click', () => {
       selectedEmotion = emotionSelect.value;
       emotionOverlay.style.display = 'none';
-      showInstructionThenStart();
+      showInstructionScreen();
     });
 
+    startSessionBtn.addEventListener('click', startSession);
     downloadCsvBtn.addEventListener('click', downloadCsv);
     downloadPngBtn.addEventListener('click', downloadPng);
     emailResultsBtn.addEventListener('click', emailResults);
