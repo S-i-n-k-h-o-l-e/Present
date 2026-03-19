@@ -207,7 +207,8 @@ function drawGraph(){
 
   ctx.fillStyle="#050505";
   ctx.fillRect(0,0,w,h);
-
+ctx.fillStyle="rgba(255,255,255,0.7)";
+ctx.fillText("Send results to: vg23563@bristol.ac.uk", pad, 70);
   let pad=80;
   let pw=w-pad*2;
   let ph=h-pad*2;
@@ -232,7 +233,13 @@ function drawGraph(){
 }
 
 function downloadCSV(){
-  let rows=["time,hz,emotion"];
+  let rows=[
+    "Present Experiment Data",
+    "Send results to: vg23563@bristol.ac.uk",
+    "",
+    "time,hz,emotion"
+  ];
+
   samples.forEach(s=>{
     rows.push(`${s.t},${s.hz},${emotion}`);
   });
