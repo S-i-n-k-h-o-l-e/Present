@@ -373,6 +373,7 @@
   <script>
     const DURATION_MS = 10000;
     const RESULTS_EMAIL = 'vg23563@bristol.ac.uk';
+    const SHEET_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxQf6Gl0GgyiNbkPOw0ujKFWoQrL2-KpxecIyK6HqrOo18LQuYVBFs0tnq5zhVM7pJ2/exec';
 
     const flash = document.getElementById('flash');
     const focusDot = document.getElementById('focusDot');
@@ -514,6 +515,67 @@
       });
     }
 
+    function round(n) {
+      return Number(n.toFixed(4));
+    }
+
+    function computeMetrics(trace) {
+      if (!trace.length) {
+        return {
+          sample_count: 0,
+          mean_hz: 0,
+          min_hz: 0,
+          max_hz: 0,
+          final_hz: 0,
+          range_hz: 0
+        };
+      }
+
+      const hzValues = trace.map(p => p.hz);
+
+      const sample_count = trace.length;
+      const mean_hz = hzValues.reduce((a, b) => a + b, 0) / sample_count;
+      const min_hz = Math.min(...hzValues);
+      const max_hz = Math.max(...hzValues);
+      const final_hz = hzValues[hzValues.length - 1];
+      const range_hz = max_hz - min_hz;
+
+      return {
+        sample_count,
+        mean_hz: round(mean_hz),
+        min_hz: round(min_hz),
+        max_hz: round(max_hz),
+        final_hz: round(final_hz),
+        range_hz: round(range_hz)
+      };
+    }
+
+    async function autoSaveSession() {
+      if (!SHEET_ENDPOINT) return;
+
+      const metrics = computeMetrics(samples);
+
+      const payload = {
+        emotion: selectedEmotion,
+        mean: metrics.mean_hz,
+        max: metrics.max_hz,
+        min: metrics.min_hz
+      };
+
+      try {
+        await fetch(SHEET_ENDPOINT, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'text/plain;charset=utf-8'
+          },
+          body: JSON.stringify(payload)
+        });
+        console.log('Saved to sheet');
+      } catch (err) {
+        console.error('Sheet save failed:', err);
+      }
+    }
+
     function showInstructionScreen() {
       instructionOverlay.style.display = 'flex';
     }
@@ -559,6 +621,7 @@
       resultsPanel.style.display = 'block';
       resizeCanvas();
       drawGraph();
+      autoSaveSession();
     }
 
     function animate(now) {
