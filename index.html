@@ -5,290 +5,312 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Present Experiment</title>
   <style>
-    :root{
-      --panel: rgba(10,10,10,0.34);
-      --border: rgba(255,255,255,0.12);
-      --text: #ffffff;
-      --muted: rgba(255,255,255,0.78);
-      --shadow: 0 14px 36px rgba(0,0,0,0.35);
+    :root {
+      --panel: rgba(10, 10, 10, 0.34);
+      --border: rgba(255, 255, 255, 0.12);
+      --muted: rgba(255, 255, 255, 0.78);
+      --shadow: 0 14px 36px rgba(0, 0, 0, 0.35);
     }
 
-    *{
-      box-sizing:border-box;
-      -webkit-tap-highlight-color:transparent;
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    html, body{
-      margin:0;
-      width:100%;
-      height:100%;
-      overflow:hidden;
-      background:#000;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #000;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
     }
 
-    body{
-      touch-action:none;
+    body {
+      touch-action: none;
     }
 
-    #flash{
-      position:fixed;
-      inset:0;
-      background:#000;
-      z-index:1;
-      will-change:background-color;
+    #flash {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      z-index: 1;
     }
 
-    #focusDot{
-      position:fixed;
-      left:50%;
-      top:50%;
-      width:10px;
-      height:10px;
-      margin-left:-5px;
-      margin-top:-5px;
-      border-radius:50%;
-      background:rgba(255,255,255,0.85);
-      box-shadow:0 0 18px rgba(255,255,255,0.3);
-      z-index:5;
-      display:none;
-      pointer-events:none;
+    #focusDot {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      width: 10px;
+      height: 10px;
+      margin-left: -5px;
+      margin-top: -5px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.85);
+      box-shadow: 0 0 18px rgba(255, 255, 255, 0.3);
+      z-index: 5;
+      display: none;
+      pointer-events: none;
     }
 
-    .overlay{
-      position:fixed;
-      inset:0;
-      background:#000;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      text-align:center;
-      z-index:100;
-      padding:24px;
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      z-index: 100;
+      padding: 24px;
     }
 
-    .overlayBox{
-      width:min(92vw, 760px);
-      padding:24px;
+    .overlayBox {
+      width: min(92vw, 760px);
+      padding: 24px;
     }
 
     .overlay h1,
-    .overlay h2{
-      margin:0 0 18px;
-      color:#fff;
-      font-size:clamp(2rem, 6vw, 5rem);
-      line-height:1.05;
-      font-weight:800;
+    .overlay h2 {
+      margin: 0 0 18px;
+      color: #fff;
+      font-size: clamp(2rem, 6vw, 5rem);
+      line-height: 1.05;
+      font-weight: 800;
     }
 
-    .overlay p{
-      margin:0 auto 16px;
-      color:rgba(255,255,255,0.84);
-      line-height:1.5;
-      font-size:clamp(1rem, 2.4vw, 1.2rem);
-      max-width:760px;
+    .overlay p {
+      margin: 0 auto 16px;
+      color: rgba(255, 255, 255, 0.84);
+      line-height: 1.5;
+      font-size: clamp(1rem, 2.4vw, 1.2rem);
+      max-width: 760px;
     }
 
-    .overlayActions{
-      margin-top:24px;
-      display:flex;
-      justify-content:center;
-      gap:14px;
-      flex-wrap:wrap;
+    .overlayActions {
+      margin-top: 24px;
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
     }
 
-    button{
-      appearance:none;
-      border:none;
-      border-radius:999px;
-      min-width:140px;
-      padding:16px 26px;
-      font-size:1.05rem;
-      font-weight:800;
-      color:#000;
-      background:#fff;
-      box-shadow:0 8px 20px rgba(0,0,0,0.28);
-      cursor:pointer;
+    button {
+      appearance: none;
+      border: none;
+      border-radius: 999px;
+      min-width: 120px;
+      padding: 12px 20px;
+      font-size: 0.98rem;
+      font-weight: 800;
+      color: #000;
+      background: #fff;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.28);
+      cursor: pointer;
     }
 
-    button.secondary{
-      color:#fff;
-      background:rgba(255,255,255,0.08);
-      border:1px solid rgba(255,255,255,0.14);
+    button.secondary {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.14);
     }
 
-    button:disabled{
-      opacity:.48;
-      cursor:default;
+    select,
+    textarea,
+    input[type="text"] {
+      width: min(100%, 320px);
+      margin-top: 8px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: #111;
+      color: #fff;
+      font-size: 0.95rem;
     }
 
-    select{
-      width:min(100%, 280px);
-      margin-top:8px;
-      padding:12px 14px;
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,0.16);
-      background:#111;
-      color:#fff;
-      font-size:1rem;
+    #sliderPanel {
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      z-index: 20;
+      width: min(92vw, 980px);
+      padding: 14px 14px 12px;
+      border-radius: 28px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: var(--shadow);
+      display: none;
     }
 
-    .prepLead{
-      font-size:clamp(1.2rem, 3vw, 1.6rem);
-      color:#fff;
-      margin-bottom:18px;
+    .sliderWrap {
+      display: grid;
+      gap: 10px;
     }
 
-    .prepHint{
-      opacity:0.72;
+    input[type="range"] {
+      width: 100%;
+      margin: 0;
+      appearance: none;
+      background: transparent;
+      height: 34px;
     }
 
-    #sliderPanel{
-      position:fixed;
-      left:50%;
-      bottom:18px;
-      transform:translateX(-50%);
-      z-index:20;
-      width:min(92vw,980px);
-      padding:14px 14px 12px;
-      border-radius:28px;
-      border:1px solid var(--border);
-      background:var(--panel);
-      backdrop-filter:blur(14px);
-      -webkit-backdrop-filter:blur(14px);
-      box-shadow:var(--shadow);
-      display:none;
+    input[type="range"]::-webkit-slider-runnable-track {
+      height: 10px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(255,255,255,.18), rgba(255,255,255,.72));
+      border: 1px solid rgba(255,255,255,.12);
     }
 
-    .sliderWrap{
-      display:grid;
-      gap:10px;
+    input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #fff;
+      border: none;
+      margin-top: -10px;
     }
 
-    input[type="range"]{
-      width:100%;
-      margin:0;
-      appearance:none;
-      background:transparent;
-      height:34px;
+    .meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 0.88rem;
     }
 
-    input[type="range"]::-webkit-slider-runnable-track{
-      height:10px;
-      border-radius:999px;
-      background:linear-gradient(90deg, rgba(255,255,255,0.18), rgba(255,255,255,0.72));
-      border:1px solid rgba(255,255,255,0.12);
+    #resultsPanel {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      background: #000;
+      display: none;
+      padding: 18px;
+      overflow: auto;
     }
 
-    input[type="range"]::-webkit-slider-thumb{
-      appearance:none;
-      width:28px;
-      height:28px;
-      border-radius:50%;
-      background:#fff;
-      border:none;
-      margin-top:-10px;
-      box-shadow:0 4px 16px rgba(0,0,0,0.35);
+    .resultsInner {
+      width: min(95vw, 1200px);
+      margin: 0 auto;
+      display: grid;
+      gap: 12px;
     }
 
-    input[type="range"]::-moz-range-track{
-      height:10px;
-      border-radius:999px;
-      background:linear-gradient(90deg, rgba(255,255,255,0.18), rgba(255,255,255,0.72));
-      border:1px solid rgba(255,255,255,0.12);
+    .resultsTop {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      color: #fff;
     }
 
-    input[type="range"]::-moz-range-thumb{
-      width:28px;
-      height:28px;
-      border-radius:50%;
-      background:#fff;
-      border:none;
-      box-shadow:0 4px 16px rgba(0,0,0,0.35);
+    .resultsButtons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
-    .meta{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:12px;
-      color:var(--muted);
-      font-size:0.95rem;
+    .resultsTitle {
+      font-size: clamp(1.3rem, 3vw, 2rem);
+      font-weight: 800;
     }
 
-    #resultsPanel{
-      position:fixed;
-      inset:0;
-      z-index:50;
-      background:#000;
-      display:none;
-      padding:24px;
-      overflow:auto;
+    .resultsMeta {
+      color: var(--muted);
+      font-size: 0.98rem;
     }
 
-    .resultsInner{
-      width:min(94vw, 1200px);
-      margin:0 auto;
-      display:grid;
-      gap:18px;
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 10px;
     }
 
-    .resultsTop{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:16px;
-      flex-wrap:wrap;
-      color:#fff;
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: rgba(255,255,255,.02);
+      padding: 12px;
+      color: #fff;
     }
 
-    .resultsTitle{
-      font-size:clamp(1.4rem, 3vw, 2.2rem);
-      font-weight:800;
+    .card h3 {
+      margin: 0 0 8px;
+      font-size: 0.93rem;
+      color: rgba(255,255,255,.85);
     }
 
-    .resultsMeta{
-      color:var(--muted);
-      font-size:1rem;
-      line-height:1.4;
+    .metric {
+      margin: 4px 0;
+      color: rgba(255,255,255,.8);
+      font-size: 0.9rem;
     }
 
-    .resultsButtons{
-      display:flex;
-      gap:12px;
-      flex-wrap:wrap;
+    .settingsRow {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      font-size: 0.9rem;
     }
 
-    .graphPanel{
-      padding:16px;
-      border-radius:28px;
-      border:1px solid var(--border);
-      background:rgba(255,255,255,0.03);
-      box-shadow:var(--shadow);
+    .graphPanel {
+      padding: 14px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.03);
+      box-shadow: var(--shadow);
     }
 
-    #graphCanvas{
-      width:100%;
-      height:min(54vh, 460px);
-      display:block;
-      border-radius:18px;
-      background:#050505;
+    #graphCanvas {
+      width: 100%;
+      height: min(54vh, 460px);
+      display: block;
+      border-radius: 14px;
+      background: #050505;
     }
 
-    .sendHint{
-      color:rgba(255,255,255,0.68);
-      font-size:0.95rem;
-      margin-top:-6px;
+    .smallBtn {
+      min-width: auto;
+      padding: 7px 13px;
+      font-size: 0.82rem;
     }
 
-    @media (max-width:640px){
-      #sliderPanel{
-        bottom:12px;
-      }
+    .savedList {
+      display: grid;
+      gap: 8px;
+      max-height: 220px;
+      overflow: auto;
+    }
 
-      .meta{
-        font-size:0.82rem;
-      }
+    .savedItem {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px;
+      background: rgba(255,255,255,.03);
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      font-size: 0.85rem;
+      color: #fff;
+    }
+
+    .feedbackCue {
+      outline: 2px solid rgba(255,130,130,.9);
+      box-shadow: 0 0 0 8px rgba(255,80,80,.14);
+    }
+
+    @media (max-width: 640px) {
+      #sliderPanel { bottom: 10px; }
     }
   </style>
 </head>
@@ -300,10 +322,8 @@
     <div class="overlayBox">
       <h2>⚠️ Warning</h2>
       <p>This experiment contains flashing lights.</p>
-      <p>Do not continue if you have photosensitive epilepsy or if flashing visual stimuli may be unsafe for you.</p>
-      <div class="overlayActions">
-        <button id="warningContinueBtn">I Understand</button>
-      </div>
+      <p>Do not continue if flashing visual stimuli may be unsafe for you.</p>
+      <div class="overlayActions"><button id="warningContinueBtn">I Understand</button></div>
     </div>
   </div>
 
@@ -311,39 +331,26 @@
     <div class="overlayBox">
       <h1>How do you feel?</h1>
       <select id="emotionSelect">
-        <option value="Calm">Calm</option>
-        <option value="Focused">Focused</option>
-        <option value="Anxious">Anxious</option>
-        <option value="Tired">Tired</option>
-        <option value="Curious">Curious</option>
-        <option value="Overstimulated">Overstimulated</option>
+        <option value="Calm">Calm</option><option value="Focused">Focused</option>
+        <option value="Anxious">Anxious</option><option value="Tired">Tired</option>
+        <option value="Curious">Curious</option><option value="Overstimulated">Overstimulated</option>
       </select>
-      <div class="overlayActions">
-        <button id="beginBtn">Continue</button>
-      </div>
+      <div class="overlayActions"><button id="beginBtn">Continue</button></div>
     </div>
   </div>
 
   <div id="instructionOverlay" class="overlay" style="display:none;">
     <div class="overlayBox">
       <h2>You have 10 seconds</h2>
-      <p class="prepLead">Interact with the slider to change the flashing frequency.</p>
-      <p>When you press begin, the message disappears and the session starts immediately.</p>
-      <p class="prepHint">Take a moment if needed, then tap when ready.</p>
-      <div class="overlayActions">
-        <button id="startSessionBtn">Begin Session</button>
-      </div>
+      <p>Interact with the slider to change the flashing frequency.</p>
+      <div class="overlayActions"><button id="startSessionBtn">Begin Session</button></div>
     </div>
   </div>
 
   <div id="sliderPanel">
     <div class="sliderWrap">
       <input id="hzSlider" type="range" min="0.5" max="20" value="4" step="0.01" />
-      <div class="meta">
-        <span>0.5 Hz</span>
-        <span>Visual flash frequency</span>
-        <span>20 Hz</span>
-      </div>
+      <div class="meta"><span>0.5 Hz</span><span>Visual flash frequency</span><span>20 Hz</span></div>
     </div>
   </div>
 
@@ -352,54 +359,93 @@
       <div class="resultsTop">
         <div>
           <div class="resultsTitle">Results</div>
-          <div class="resultsMeta" id="resultsMeta">State: not set</div>
+          <div id="resultsMeta" class="resultsMeta">State: not set</div>
+          <div class="settingsRow"><label><input type="checkbox" id="feedbackEnabledToggle" checked> Feedback enabled</label></div>
         </div>
         <div class="resultsButtons">
           <button id="restartBtn" class="secondary">Restart</button>
-          <button id="downloadCsvBtn">Download CSV</button>
-          <button id="downloadPngBtn">Download Graph</button>
+          <button id="downloadCsvBtn">CSV</button>
+          <button id="downloadJsonBtn">JSON</button>
+          <button id="downloadPngBtn">Graph PNG</button>
           <button id="emailResultsBtn">Send Results</button>
         </div>
       </div>
 
-      <div class="sendHint">Send results to: vg23563@bristol.ac.uk</div>
-
-      <div class="graphPanel">
-        <canvas id="graphCanvas"></canvas>
+      <div class="cards">
+        <div class="card"><h3>Classification</h3><div id="classificationSummary" class="metric">Not available yet.</div></div>
+        <div class="card"><h3>Summary Metrics</h3><div id="metricsSummary"></div></div>
+        <div class="card">
+          <h3>Databank</h3>
+          <div class="settingsRow">
+            <button id="openArchiveBtn" class="secondary smallBtn">Open Archive</button>
+            <button id="overlaySelectedBtn" class="secondary smallBtn">Overlay Selected</button>
+          </div>
+          <div id="archiveStatus" class="metric"></div>
+        </div>
+        <div class="card">
+          <h3>Notes</h3>
+          <textarea id="notesInput" rows="3" placeholder="Optional trial notes"></textarea>
+        </div>
       </div>
+
+      <div class="graphPanel"><canvas id="graphCanvas"></canvas></div>
+      <div class="card" id="archivePanel" style="display:none;"><h3>Saved Sessions</h3><div id="savedList" class="savedList"></div></div>
     </div>
   </div>
 
   <script>
-    const DURATION_MS = 10000;
+    const APP_CONFIG = {
+      durationMs: 10000,
+      samplingMinIntervalSec: 0.05,
+      graph: { xMaxSeconds: 10, yMaxHz: 20 },
+      thresholds: {
+        reactivePeakHz: 11,
+        reactiveDropRatio: 0.42,
+        controlledStdDevMax: 2.2,
+        controlledMeanMax: 10.5,
+        drivenMeanMin: 10.5,
+        drivenPlateauMinHz: 11.2,
+        collapseRiskFlag: 0.65
+      },
+      feedback: { enabledDefault: true, visualCueMs: 650 },
+      storage: { dbName: 'presentExperimentDB', storeName: 'trials' }
+    };
+
     const RESULTS_EMAIL = 'vg23563@bristol.ac.uk';
     const SHEET_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxQf6Gl0GgyiNbkPOw0ujKFWoQrL2-KpxecIyK6HqrOo18LQuYVBFs0tnq5zhVM7pJ2/exec';
 
-    const flash = document.getElementById('flash');
-    const focusDot = document.getElementById('focusDot');
+    const el = {
+      flash: document.getElementById('flash'),
+      focusDot: document.getElementById('focusDot'),
+      warningOverlay: document.getElementById('warningOverlay'),
+      emotionOverlay: document.getElementById('emotionOverlay'),
+      instructionOverlay: document.getElementById('instructionOverlay'),
+      warningContinueBtn: document.getElementById('warningContinueBtn'),
+      beginBtn: document.getElementById('beginBtn'),
+      startSessionBtn: document.getElementById('startSessionBtn'),
+      emotionSelect: document.getElementById('emotionSelect'),
+      sliderPanel: document.getElementById('sliderPanel'),
+      hzSlider: document.getElementById('hzSlider'),
+      resultsPanel: document.getElementById('resultsPanel'),
+      resultsMeta: document.getElementById('resultsMeta'),
+      restartBtn: document.getElementById('restartBtn'),
+      downloadCsvBtn: document.getElementById('downloadCsvBtn'),
+      downloadJsonBtn: document.getElementById('downloadJsonBtn'),
+      downloadPngBtn: document.getElementById('downloadPngBtn'),
+      emailResultsBtn: document.getElementById('emailResultsBtn'),
+      feedbackEnabledToggle: document.getElementById('feedbackEnabledToggle'),
+      classificationSummary: document.getElementById('classificationSummary'),
+      metricsSummary: document.getElementById('metricsSummary'),
+      openArchiveBtn: document.getElementById('openArchiveBtn'),
+      overlaySelectedBtn: document.getElementById('overlaySelectedBtn'),
+      archivePanel: document.getElementById('archivePanel'),
+      savedList: document.getElementById('savedList'),
+      archiveStatus: document.getElementById('archiveStatus'),
+      graphCanvas: document.getElementById('graphCanvas'),
+      notesInput: document.getElementById('notesInput')
+    };
 
-    const warningOverlay = document.getElementById('warningOverlay');
-    const emotionOverlay = document.getElementById('emotionOverlay');
-    const instructionOverlay = document.getElementById('instructionOverlay');
-
-    const warningContinueBtn = document.getElementById('warningContinueBtn');
-    const beginBtn = document.getElementById('beginBtn');
-    const startSessionBtn = document.getElementById('startSessionBtn');
-    const emotionSelect = document.getElementById('emotionSelect');
-
-    const sliderPanel = document.getElementById('sliderPanel');
-    const hzSlider = document.getElementById('hzSlider');
-
-    const resultsPanel = document.getElementById('resultsPanel');
-    const resultsMeta = document.getElementById('resultsMeta');
-    const restartBtn = document.getElementById('restartBtn');
-    const downloadCsvBtn = document.getElementById('downloadCsvBtn');
-    const downloadPngBtn = document.getElementById('downloadPngBtn');
-    const emailResultsBtn = document.getElementById('emailResultsBtn');
-
-    const graphCanvas = document.getElementById('graphCanvas');
-    const g = graphCanvas.getContext('2d');
-
+    const g = el.graphCanvas.getContext('2d');
     let selectedEmotion = '';
     let running = false;
     let rafId = 0;
@@ -408,183 +454,355 @@
     let startTime = 0;
     let samples = [];
     let lastSampleTime = -1;
+    let feedbackTriggered = false;
+    let lastTrialResult = null;
+    let archiveOpen = false;
+    const overlayTrialIds = new Set();
+
+    el.feedbackEnabledToggle.checked = APP_CONFIG.feedback.enabledDefault;
+
+    function round(n) { return Number(n.toFixed(4)); }
 
     function setVisual(level) {
       const l = Math.max(0, Math.min(1, level));
       const value = Math.round(l * 255);
-      flash.style.backgroundColor = `rgb(${value},${value},${value})`;
+      el.flash.style.backgroundColor = `rgb(${value},${value},${value})`;
     }
 
-    function resetVisual() {
-      flash.style.backgroundColor = '#000';
-    }
+    function resetVisual() { el.flash.style.backgroundColor = '#000'; }
 
     function resizeCanvas() {
-      const rect = graphCanvas.getBoundingClientRect();
+      const rect = el.graphCanvas.getBoundingClientRect();
       const ratio = window.devicePixelRatio || 1;
-      graphCanvas.width = Math.max(1, Math.round(rect.width * ratio));
-      graphCanvas.height = Math.max(1, Math.round(rect.height * ratio));
+      el.graphCanvas.width = Math.max(1, Math.round(rect.width * ratio));
+      el.graphCanvas.height = Math.max(1, Math.round(rect.height * ratio));
       g.setTransform(ratio, 0, 0, ratio, 0, 0);
-      if (samples.length > 1) drawGraph();
+      if (samples.length > 1) drawGraph(samples);
     }
 
-    function drawGraph() {
-      const w = graphCanvas.clientWidth;
-      const h = graphCanvas.clientHeight;
-
-      g.clearRect(0, 0, w, h);
-      g.fillStyle = '#050505';
-      g.fillRect(0, 0, w, h);
-
+    function drawGraph(trace = samples) {
+      const w = el.graphCanvas.clientWidth;
+      const h = el.graphCanvas.clientHeight;
       const pad = { l: 78, r: 56, t: 54, b: 70 };
       const pw = w - pad.l - pad.r;
       const ph = h - pad.t - pad.b;
       if (pw <= 0 || ph <= 0) return;
 
-      const xMin = 0;
-      const xMax = 10;
-      const yMin = 0;
-      const yMax = 20;
-
-      g.strokeStyle = 'rgba(255,255,255,0.14)';
+      g.clearRect(0, 0, w, h);
+      g.fillStyle = '#050505';
+      g.fillRect(0, 0, w, h);
+      g.strokeStyle = 'rgba(255,255,255,.14)';
       g.lineWidth = 1;
-      g.font = '12px system-ui, sans-serif';
-      g.fillStyle = 'rgba(255,255,255,0.76)';
+      g.font = '12px system-ui,sans-serif';
+      g.fillStyle = 'rgba(255,255,255,.76)';
 
-      for (let y = 0; y <= 20; y += 5) {
-        const py = pad.t + ph - ((y - yMin) / (yMax - yMin)) * ph;
-        g.beginPath();
-        g.moveTo(pad.l, py);
-        g.lineTo(w - pad.r, py);
-        g.stroke();
+      for (let y = 0; y <= APP_CONFIG.graph.yMaxHz; y += 5) {
+        const py = pad.t + ph - (y / APP_CONFIG.graph.yMaxHz) * ph;
+        g.beginPath(); g.moveTo(pad.l, py); g.lineTo(w - pad.r, py); g.stroke();
         g.fillText(String(y), pad.l - 36, py + 4);
       }
 
-      for (let x = 0; x <= 10; x += 2) {
-        const px = pad.l + ((x - xMin) / (xMax - xMin)) * pw;
-        g.beginPath();
-        g.moveTo(px, pad.t);
-        g.lineTo(px, h - pad.b);
-        g.stroke();
-
-        let labelX = px - 10;
-        if (x === 0) labelX = px - 2;
-        if (x === 10) labelX = px - 22;
-
-        g.fillText(`${x}s`, labelX, h - pad.b + 30);
+      for (let x = 0; x <= APP_CONFIG.graph.xMaxSeconds; x += 2) {
+        const px = pad.l + (x / APP_CONFIG.graph.xMaxSeconds) * pw;
+        g.beginPath(); g.moveTo(px, pad.t); g.lineTo(px, h - pad.b); g.stroke();
+        g.fillText(`${x}s`, px - (x === 10 ? 22 : 10), h - pad.b + 30);
       }
 
-      g.strokeStyle = 'rgba(255,255,255,0.92)';
+      g.strokeStyle = 'rgba(255,255,255,.92)';
       g.lineWidth = 2.5;
       g.beginPath();
-
-      samples.forEach((s, i) => {
-        const px = pad.l + ((s.t - xMin) / (xMax - xMin)) * pw;
-        const py = pad.t + ph - ((s.hz - yMin) / (yMax - yMin)) * ph;
-        if (i === 0) g.moveTo(px, py);
-        else g.lineTo(px, py);
+      trace.forEach((s, i) => {
+        const t = s.t ?? s.time_seconds;
+        const px = pad.l + (t / APP_CONFIG.graph.xMaxSeconds) * pw;
+        const py = pad.t + ph - (s.hz / APP_CONFIG.graph.yMaxHz) * ph;
+        if (i === 0) g.moveTo(px, py); else g.lineTo(px, py);
       });
-
       g.stroke();
 
-      g.fillStyle = 'rgba(255,255,255,0.92)';
-      g.font = 'bold 16px system-ui, sans-serif';
-      g.fillText('Present Experiment', pad.l, 28);
-
-      g.font = '13px system-ui, sans-serif';
-      g.fillStyle = 'rgba(255,255,255,0.78)';
+      g.fillStyle = 'rgba(255,255,255,.92)';
+      g.font = 'bold 16px system-ui,sans-serif';
+      g.fillText('Present Experiment: Frequency Response', pad.l, 28);
+      g.font = '13px system-ui,sans-serif';
+      g.fillStyle = 'rgba(255,255,255,.78)';
       g.fillText(`State before: ${selectedEmotion}`, pad.l, 46);
-      g.fillText(`Send results to: ${RESULTS_EMAIL}`, pad.l + 220, 46);
-
-      g.fillStyle = 'rgba(255,255,255,0.92)';
       g.fillText('Hz', pad.l - 36, pad.t - 14);
-      g.fillText('Time', w - pad.r - 42, h - 22);
+      g.fillText('Time (s)', w - pad.r - 64, h - 22);
+    }
+
+    function drawGraphWithOverlay(mainSamples, overlayTrials = []) {
+      drawGraph(mainSamples);
+      if (!overlayTrials.length) return;
+
+      const w = el.graphCanvas.clientWidth;
+      const h = el.graphCanvas.clientHeight;
+      const pad = { l: 78, r: 56, t: 54, b: 70 };
+      const pw = w - pad.l - pad.r;
+      const ph = h - pad.t - pad.b;
+      const colors = ['#63e6be', '#74c0fc', '#ffd43b', '#ffa8a8', '#b197fc'];
+
+      overlayTrials.forEach((trial, idx) => {
+        g.strokeStyle = colors[idx % colors.length];
+        g.fillStyle = colors[idx % colors.length];
+        g.globalAlpha = 0.72;
+        g.lineWidth = 1.4;
+        g.beginPath();
+        trial.samples.forEach((s, i) => {
+          const px = pad.l + (s.time_seconds / APP_CONFIG.graph.xMaxSeconds) * pw;
+          const py = pad.t + ph - (s.hz / APP_CONFIG.graph.yMaxHz) * ph;
+          if (i === 0) g.moveTo(px, py); else g.lineTo(px, py);
+        });
+        g.stroke();
+        g.font = '12px system-ui,sans-serif';
+        g.fillText(`${new Date(trial.timestamp).toLocaleTimeString()} | ${trial.state_before} | ${trial.detected_pattern}`, pad.l, h - 44 - idx * 14);
+      });
+      g.globalAlpha = 1;
     }
 
     function samplePoint(nowMs) {
       const t = (nowMs - startTime) / 1000;
       if (t < 0) return;
-
-      if (lastSampleTime >= 0 && (t - lastSampleTime) < 0.05) return;
+      if (lastSampleTime >= 0 && (t - lastSampleTime) < APP_CONFIG.samplingMinIntervalSec) return;
       lastSampleTime = t;
-
       samples.push({
-        t: Math.min(10, t),
-        hz: Number(hzSlider.value),
+        t: Math.min(APP_CONFIG.graph.xMaxSeconds, t),
+        hz: Number(el.hzSlider.value),
         emotion: selectedEmotion
       });
     }
 
-    function round(n) {
-      return Number(n.toFixed(4));
-    }
-
-    function computeMetrics(trace) {
+    function computeFeatures(trace) {
       if (!trace.length) {
         return {
-          sample_count: 0,
-          mean_hz: 0,
-          min_hz: 0,
-          max_hz: 0,
-          final_hz: 0,
-          range_hz: 0
+          sample_count: 0, start_hz: 0, peak_hz: 0, end_hz: 0, time_to_peak: 0,
+          mean_hz: 0, area_under_curve: 0, variance_or_stability_score: 0,
+          largest_upward_slope: 0, largest_downward_slope: 0,
+          rise_slope_estimate: 0, fall_slope_estimate: 0, plateau_detected: false
         };
       }
 
-      const hzValues = trace.map(p => p.hz);
-
+      const hz = trace.map(p => p.hz);
       const sample_count = trace.length;
-      const mean_hz = hzValues.reduce((a, b) => a + b, 0) / sample_count;
-      const min_hz = Math.min(...hzValues);
-      const max_hz = Math.max(...hzValues);
-      const final_hz = hzValues[hzValues.length - 1];
-      const range_hz = max_hz - min_hz;
+      const start_hz = hz[0];
+
+      let peak_hz = hz[0];
+      let peakIndex = 0;
+      let area = 0;
+      let largestUp = -Infinity;
+      let largestDown = Infinity;
+
+      for (let i = 1; i < trace.length; i++) {
+        if (trace[i].hz > peak_hz) { peak_hz = trace[i].hz; peakIndex = i; }
+        const dt = Math.max(0.0001, trace[i].t - trace[i - 1].t);
+        const slope = (trace[i].hz - trace[i - 1].hz) / dt;
+        if (slope > largestUp) largestUp = slope;
+        if (slope < largestDown) largestDown = slope;
+        area += ((trace[i - 1].hz + trace[i].hz) / 2) * dt;
+      }
+
+      const mean_hz = hz.reduce((a, b) => a + b, 0) / sample_count;
+      const variance = hz.reduce((acc, value) => acc + ((value - mean_hz) ** 2), 0) / sample_count;
+      const end_hz = hz.at(-1);
+      const time_to_peak = trace[peakIndex].t;
+      const rise = (peak_hz - start_hz) / Math.max(0.0001, time_to_peak);
+      const fall = (end_hz - peak_hz) / Math.max(0.0001, trace.at(-1).t - time_to_peak);
+
+      const plateauWindow = hz.slice(Math.floor(sample_count * 0.35), Math.floor(sample_count * 0.75));
+      const plateauMean = plateauWindow.length ? plateauWindow.reduce((a, b) => a + b, 0) / plateauWindow.length : 0;
+      const plateauStd = plateauWindow.length
+        ? Math.sqrt(plateauWindow.reduce((acc, value) => acc + ((value - plateauMean) ** 2), 0) / plateauWindow.length)
+        : 999;
 
       return {
         sample_count,
-        mean_hz: round(mean_hz),
-        min_hz: round(min_hz),
-        max_hz: round(max_hz),
-        final_hz: round(final_hz),
-        range_hz: round(range_hz)
+        start_hz: round(start_hz), peak_hz: round(peak_hz), end_hz: round(end_hz),
+        time_to_peak: round(time_to_peak), mean_hz: round(mean_hz), area_under_curve: round(area),
+        variance_or_stability_score: round(variance),
+        largest_upward_slope: round(Number.isFinite(largestUp) ? largestUp : 0),
+        largest_downward_slope: round(Number.isFinite(largestDown) ? largestDown : 0),
+        rise_slope_estimate: round(rise),
+        fall_slope_estimate: round(fall),
+        plateau_detected: plateauWindow.length > 3 && plateauStd < 1.2
       };
     }
 
+    function classifyPattern(features) {
+      const t = APP_CONFIG.thresholds;
+      const dropRatio = features.peak_hz > 0 ? (features.peak_hz - features.end_hz) / features.peak_hz : 0;
+      const stable = features.variance_or_stability_score <= (t.controlledStdDevMax ** 2);
+
+      if (features.peak_hz >= t.reactivePeakHz && dropRatio >= t.reactiveDropRatio && features.largest_downward_slope < -3.3) {
+        return 'reactive_collapse';
+      }
+      if (features.mean_hz <= t.controlledMeanMax && stable && features.plateau_detected) {
+        return 'controlled_hold';
+      }
+      if (features.mean_hz >= t.drivenMeanMin && features.end_hz >= t.drivenPlateauMinHz && features.fall_slope_estimate > -2.2) {
+        return 'driven_sustain';
+      }
+      return 'unclassified';
+    }
+
+    function detectCollapseRisk(features) {
+      let score = 0;
+      const overshootDrop = features.peak_hz - features.end_hz;
+      if (features.largest_downward_slope < -5) score += 0.28;
+      if (overshootDrop > 4 && features.peak_hz > 10) score += 0.24;
+      if (features.end_hz < 4) score += 0.20;
+      if (features.variance_or_stability_score > 8) score += 0.16;
+      if (features.fall_slope_estimate < -3) score += 0.14;
+      score = Math.max(0, Math.min(1, score));
+      return {
+        collapse_risk_score: round(score),
+        collapse_risk_flag: score >= APP_CONFIG.thresholds.collapseRiskFlag
+      };
+    }
+
+    function triggerFeedbackCue() {
+      feedbackTriggered = true;
+      if (navigator.vibrate) navigator.vibrate([90, 40, 90]);
+      el.resultsPanel.classList.add('feedbackCue');
+      setTimeout(() => el.resultsPanel.classList.remove('feedbackCue'), APP_CONFIG.feedback.visualCueMs);
+    }
+
+    function buildTrialResult() {
+      const features = computeFeatures(samples);
+      const detected_pattern = classifyPattern(features);
+      const risk = detectCollapseRisk(features);
+
+      return {
+        id: crypto.randomUUID ? crypto.randomUUID() : `trial_${Date.now()}`,
+        timestamp: new Date().toISOString(),
+        state_before: selectedEmotion,
+        duration_seconds: APP_CONFIG.durationMs / 1000,
+        samples: samples.map(s => ({ time_seconds: round(s.t), hz: round(s.hz) })),
+        start_hz: features.start_hz,
+        peak_hz: features.peak_hz,
+        end_hz: features.end_hz,
+        time_to_peak: features.time_to_peak,
+        rise_slope_estimate: features.rise_slope_estimate,
+        fall_slope_estimate: features.fall_slope_estimate,
+        variance_or_stability_score: features.variance_or_stability_score,
+        area_under_curve: features.area_under_curve,
+        average_hz: features.mean_hz,
+        largest_upward_slope: features.largest_upward_slope,
+        largest_downward_slope: features.largest_downward_slope,
+        plateau_detected: features.plateau_detected,
+        detected_pattern,
+        collapse_risk_score: risk.collapse_risk_score,
+        collapse_risk_flag: risk.collapse_risk_flag,
+        feedback_triggered: feedbackTriggered,
+        graph_image_data_url: el.graphCanvas.toDataURL('image/png'),
+        notes: el.notesInput.value || ''
+      };
+    }
+
+    function renderResultSummary(trial) {
+      el.classificationSummary.innerHTML = `
+        <div class="metric"><strong>Pattern:</strong> ${trial.detected_pattern}</div>
+        <div class="metric"><strong>Collapse risk:</strong> ${trial.collapse_risk_score} (${trial.collapse_risk_flag ? 'flagged' : 'not flagged'})</div>
+        <div class="metric"><strong>Feedback triggered:</strong> ${trial.feedback_triggered ? 'yes' : 'no'}</div>`;
+
+      el.metricsSummary.innerHTML = [
+        `Start Hz: <strong>${trial.start_hz}</strong>`,
+        `Peak Hz: <strong>${trial.peak_hz}</strong>`,
+        `End Hz: <strong>${trial.end_hz}</strong>`,
+        `Avg Hz: <strong>${trial.average_hz}</strong>`,
+        `Time to peak: <strong>${trial.time_to_peak}s</strong>`,
+        `AUC: <strong>${trial.area_under_curve}</strong>`,
+        `Variance: <strong>${trial.variance_or_stability_score}</strong>`
+      ].map(v => `<div class="metric">${v}</div>`).join('');
+    }
+
+    function openDb() {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open(APP_CONFIG.storage.dbName, 1);
+        request.onupgradeneeded = () => {
+          const db = request.result;
+          if (!db.objectStoreNames.contains(APP_CONFIG.storage.storeName)) {
+            db.createObjectStore(APP_CONFIG.storage.storeName, { keyPath: 'id' });
+          }
+        };
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    async function saveTrialToDatabank(trial) {
+      const db = await openDb();
+      await new Promise((resolve, reject) => {
+        const tx = db.transaction(APP_CONFIG.storage.storeName, 'readwrite');
+        tx.objectStore(APP_CONFIG.storage.storeName).put(trial);
+        tx.oncomplete = resolve;
+        tx.onerror = () => reject(tx.error);
+      });
+      db.close();
+      el.archiveStatus.textContent = 'Saved locally.';
+    }
+
+    async function getAllTrials() {
+      const db = await openDb();
+      const records = await new Promise((resolve, reject) => {
+        const tx = db.transaction(APP_CONFIG.storage.storeName, 'readonly');
+        const request = tx.objectStore(APP_CONFIG.storage.storeName).getAll();
+        request.onsuccess = () => resolve(request.result || []);
+        request.onerror = () => reject(request.error);
+      });
+      db.close();
+      return records.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    }
+
+    async function renderArchive() {
+      const trials = await getAllTrials();
+      if (!trials.length) {
+        el.savedList.innerHTML = '<div class="metric">No saved sessions yet.</div>';
+        return;
+      }
+
+      el.savedList.innerHTML = trials.map(trial => `
+        <div class="savedItem">
+          <div>
+            <div><strong>${new Date(trial.timestamp).toLocaleString()}</strong></div>
+            <div>${trial.state_before} · ${trial.detected_pattern} · risk ${trial.collapse_risk_score}</div>
+          </div>
+          <div class="settingsRow">
+            <label><input type="checkbox" data-overlay-id="${trial.id}" ${overlayTrialIds.has(trial.id) ? 'checked' : ''}> Overlay</label>
+            <button class="secondary smallBtn" data-open-id="${trial.id}">Open</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
     async function autoSaveSession() {
-      if (!SHEET_ENDPOINT) return;
-
-      const metrics = computeMetrics(samples);
-
+      if (!SHEET_ENDPOINT || !lastTrialResult) return;
       const payload = {
         emotion: selectedEmotion,
-        mean: metrics.mean_hz,
-        max: metrics.max_hz,
-        min: metrics.min_hz
+        mean: lastTrialResult.average_hz,
+        max: lastTrialResult.peak_hz,
+        min: Math.min(...lastTrialResult.samples.map(s => s.hz)),
+        pattern: lastTrialResult.detected_pattern,
+        collapse_risk_score: lastTrialResult.collapse_risk_score
       };
 
       try {
         await fetch(SHEET_ENDPOINT, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'text/plain;charset=utf-8'
-          },
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify(payload)
         });
-        console.log('Saved to sheet');
       } catch (err) {
         console.error('Sheet save failed:', err);
       }
     }
 
     function showInstructionScreen() {
-      instructionOverlay.style.display = 'flex';
+      el.instructionOverlay.style.display = 'flex';
     }
 
     function startSession() {
-      instructionOverlay.style.display = 'none';
-      resultsPanel.style.display = 'none';
-      sliderPanel.style.display = 'block';
-      focusDot.style.display = 'block';
+      el.instructionOverlay.style.display = 'none';
+      el.resultsPanel.style.display = 'none';
+      el.sliderPanel.style.display = 'block';
+      el.focusDot.style.display = 'block';
 
       running = true;
       phase = 0;
@@ -592,7 +810,7 @@
       startTime = performance.now();
       lastSampleTime = -1;
       samples = [];
-
+      feedbackTriggered = false;
       samplePoint(startTime);
 
       document.documentElement.requestFullscreen?.().catch(() => {});
@@ -602,139 +820,207 @@
     function finishSession() {
       running = false;
       cancelAnimationFrame(rafId);
-
       samplePoint(performance.now());
       resetVisual();
 
-      sliderPanel.style.display = 'none';
-      focusDot.style.display = 'none';
+      el.sliderPanel.style.display = 'none';
+      el.focusDot.style.display = 'none';
+      el.resultsPanel.style.display = 'block';
+      el.resultsMeta.innerHTML = `<strong>State (before): ${selectedEmotion}</strong><div style="opacity:.7;">${APP_CONFIG.durationMs / 1000} second session</div>`;
 
-      resultsMeta.innerHTML = `
-        <div style="font-size:1.1rem;">
-          <strong>State (before): ${selectedEmotion}</strong>
-        </div>
-        <div style="opacity:0.6; font-size:0.9rem; margin-top:4px;">
-          10 second session
-        </div>
-      `;
-
-      resultsPanel.style.display = 'block';
       resizeCanvas();
-      drawGraph();
+      drawGraph(samples);
+
+      lastTrialResult = buildTrialResult();
+      if (el.feedbackEnabledToggle.checked && lastTrialResult.collapse_risk_flag) triggerFeedbackCue();
+      lastTrialResult.feedback_triggered = feedbackTriggered;
+
+      renderResultSummary(lastTrialResult);
+      saveTrialToDatabank(lastTrialResult).catch(() => {
+        el.archiveStatus.textContent = 'Failed to save local record.';
+      });
       autoSaveSession();
     }
 
     function animate(now) {
       if (!running) return;
-
       if (!lastTime) lastTime = now;
+
       const dt = Math.max(0, (now - lastTime) / 1000);
       lastTime = now;
 
       const elapsed = now - startTime;
-      const hz = Number(hzSlider.value);
-
+      const hz = Number(el.hzSlider.value);
       phase += dt * hz * Math.PI * 2;
 
       const wave = 0.5 + 0.5 * Math.sin(phase);
-      const brightness = Math.pow(wave, 0.86);
-      setVisual(brightness);
-
+      setVisual(Math.pow(wave, 0.86));
       samplePoint(now);
 
-      if (elapsed >= DURATION_MS) {
+      if (elapsed >= APP_CONFIG.durationMs) {
         finishSession();
         return;
       }
-
       rafId = requestAnimationFrame(animate);
     }
 
-    function downloadCsv() {
-      if (samples.length < 2) return;
-
-      const rows = [
-        'Present Experiment Data',
-        `Send results to: ${RESULTS_EMAIL}`,
-        `State before: ${selectedEmotion}`,
-        '',
-        'time_seconds,hz,emotion'
-      ];
-
-      for (const s of samples) {
-        rows.push(`${s.t.toFixed(4)},${s.hz.toFixed(4)},"${s.emotion}"`);
-      }
-
-      const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
+    function saveBlob(blob, filename) {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      const stamp = new Date().toISOString().replace(/[:.]/g, '-');
       a.href = url;
-      a.download = `present_session_${stamp}.csv`;
+      a.download = filename;
       document.body.appendChild(a);
       a.click();
       a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
     }
 
+    function downloadCsv() {
+      if (!lastTrialResult) return;
+      const rows = [
+        'Present Experiment Data',
+        `State before,${selectedEmotion}`,
+        `timestamp,${lastTrialResult.timestamp}`,
+        `detected_pattern,${lastTrialResult.detected_pattern}`,
+        `collapse_risk_score,${lastTrialResult.collapse_risk_score}`,
+        `feedback_triggered,${lastTrialResult.feedback_triggered}`,
+        '',
+        'time_seconds,hz,state_before'
+      ];
+      lastTrialResult.samples.forEach(s => rows.push(`${s.time_seconds},${s.hz},"${selectedEmotion}"`));
+      saveBlob(new Blob([rows.join('\n')], { type: 'text/csv' }), `present_session_${new Date().toISOString().replace(/[:.]/g, '-')}.csv`);
+    }
+
+    function downloadJson() {
+      if (!lastTrialResult) return;
+      saveBlob(new Blob([JSON.stringify(lastTrialResult, null, 2)], { type: 'application/json' }), `present_session_${new Date().toISOString().replace(/[:.]/g, '-')}.json`);
+    }
+
     function downloadPng() {
-      if (samples.length < 2) return;
-
-      drawGraph();
-
+      if (!lastTrialResult) return;
+      drawGraph(samples);
       const a = document.createElement('a');
-      const stamp = new Date().toISOString().replace(/[:.]/g, '-');
-      a.href = graphCanvas.toDataURL('image/png');
-      a.download = `present_graph_${stamp}.png`;
+      a.href = el.graphCanvas.toDataURL('image/png');
+      a.download = `present_graph_${new Date().toISOString().replace(/[:.]/g, '-')}.png`;
       document.body.appendChild(a);
       a.click();
       a.remove();
     }
 
-    function emailResults() {
-      if (samples.length < 2) return;
+    async function emailResults() {
+      if (!lastTrialResult) return;
+      const stamp = new Date(lastTrialResult.timestamp).toISOString().replace(/[:.]/g, '-');
+      const jsonBlob = new Blob([JSON.stringify(lastTrialResult, null, 2)], { type: 'application/json' });
+      const pngBlob = await (await fetch(lastTrialResult.graph_image_data_url)).blob();
+      const files = [
+        new File([jsonBlob], `present_result_${stamp}.json`, { type: 'application/json' }),
+        new File([pngBlob], `present_graph_${stamp}.png`, { type: 'image/png' })
+      ];
 
-      let subject = 'Present Experiment Results';
+      if (navigator.canShare && navigator.canShare({ files }) && navigator.share) {
+        try {
+          await navigator.share({
+            title: 'Present Experiment Results',
+            text: `Pattern: ${lastTrialResult.detected_pattern}, collapse risk: ${lastTrialResult.collapse_risk_score}`,
+            files
+          });
+          el.archiveStatus.textContent = 'Shared using native share.';
+          return;
+        } catch (_err) {
+          // User canceled or unsupported runtime behavior.
+        }
+      }
+
+      const subject = `Present Experiment Results (${lastTrialResult.detected_pattern})`;
       let body = 'Present Experiment Results\n';
-      body += `Send results to: ${RESULTS_EMAIL}\n\n`;
       body += `State (before): ${selectedEmotion}\n`;
-      body += 'Duration: 10 seconds\n\n';
-      body += 'time_seconds,hz\n';
-
-      samples.forEach((s) => {
-        body += `${s.t.toFixed(3)},${s.hz.toFixed(3)}\n`;
-      });
-
-      const mailto = `mailto:${RESULTS_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-      window.location.href = mailto;
+      body += `Timestamp: ${lastTrialResult.timestamp}\n`;
+      body += `Pattern: ${lastTrialResult.detected_pattern}\n`;
+      body += `Collapse risk: ${lastTrialResult.collapse_risk_score}\n\n`;
+      body += 'Your browser cannot auto-attach files via mailto. Please attach downloaded JSON and PNG manually.';
+      window.location.href = `mailto:${RESULTS_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      el.archiveStatus.textContent = 'Opened email app with manual attachment instruction.';
     }
 
     function restartFlow() {
-      resultsPanel.style.display = 'none';
-      warningOverlay.style.display = 'none';
-      emotionOverlay.style.display = 'flex';
-      instructionOverlay.style.display = 'none';
-      sliderPanel.style.display = 'none';
-      focusDot.style.display = 'none';
+      el.resultsPanel.style.display = 'none';
+      el.warningOverlay.style.display = 'none';
+      el.emotionOverlay.style.display = 'flex';
+      el.instructionOverlay.style.display = 'none';
+      el.sliderPanel.style.display = 'none';
+      el.focusDot.style.display = 'none';
+      el.archiveStatus.textContent = '';
+      el.notesInput.value = '';
       resetVisual();
     }
 
-    warningContinueBtn.addEventListener('click', () => {
-      warningOverlay.style.display = 'none';
-      emotionOverlay.style.display = 'flex';
+    el.warningContinueBtn.addEventListener('click', () => {
+      el.warningOverlay.style.display = 'none';
+      el.emotionOverlay.style.display = 'flex';
     });
 
-    beginBtn.addEventListener('click', () => {
-      selectedEmotion = emotionSelect.value;
-      emotionOverlay.style.display = 'none';
+    el.beginBtn.addEventListener('click', () => {
+      selectedEmotion = el.emotionSelect.value;
+      el.emotionOverlay.style.display = 'none';
       showInstructionScreen();
     });
 
-    startSessionBtn.addEventListener('click', startSession);
-    downloadCsvBtn.addEventListener('click', downloadCsv);
-    downloadPngBtn.addEventListener('click', downloadPng);
-    emailResultsBtn.addEventListener('click', emailResults);
-    restartBtn.addEventListener('click', restartFlow);
+    el.startSessionBtn.addEventListener('click', startSession);
+    el.downloadCsvBtn.addEventListener('click', downloadCsv);
+    el.downloadJsonBtn.addEventListener('click', downloadJson);
+    el.downloadPngBtn.addEventListener('click', downloadPng);
+    el.emailResultsBtn.addEventListener('click', emailResults);
+    el.restartBtn.addEventListener('click', restartFlow);
+
+    el.openArchiveBtn.addEventListener('click', async () => {
+      archiveOpen = !archiveOpen;
+      el.archivePanel.style.display = archiveOpen ? 'block' : 'none';
+      if (archiveOpen) await renderArchive();
+    });
+
+    el.savedList.addEventListener('click', async (event) => {
+      const openId = event.target.getAttribute('data-open-id');
+      if (!openId) return;
+      const trials = await getAllTrials();
+      const trial = trials.find(t => t.id === openId);
+      if (!trial) return;
+
+      selectedEmotion = trial.state_before;
+      samples = trial.samples.map(s => ({ t: s.time_seconds, hz: s.hz, emotion: trial.state_before }));
+      lastTrialResult = trial;
+      el.notesInput.value = trial.notes || '';
+      el.resultsMeta.innerHTML = `<strong>State (before): ${trial.state_before}</strong><div style="opacity:.7;">Loaded from archive</div>`;
+      el.resultsPanel.style.display = 'block';
+      resizeCanvas();
+      drawGraph(samples);
+      renderResultSummary(trial);
+    });
+
+    el.savedList.addEventListener('change', (event) => {
+      const id = event.target.getAttribute('data-overlay-id');
+      if (!id) return;
+      if (event.target.checked) overlayTrialIds.add(id);
+      else overlayTrialIds.delete(id);
+    });
+
+    el.overlaySelectedBtn.addEventListener('click', async () => {
+      if (!lastTrialResult) return;
+      const allTrials = await getAllTrials();
+      const selected = allTrials.filter(t => overlayTrialIds.has(t.id));
+      drawGraphWithOverlay(lastTrialResult.samples, selected);
+      el.archiveStatus.textContent = selected.length ? `Overlaying ${selected.length} trial(s).` : 'No overlay trials selected.';
+    });
+
+    el.notesInput.addEventListener('change', async () => {
+      if (!lastTrialResult) return;
+      lastTrialResult.notes = el.notesInput.value;
+      try {
+        await saveTrialToDatabank(lastTrialResult);
+      } catch (_err) {
+        el.archiveStatus.textContent = 'Could not update notes.';
+      }
+    });
+
     window.addEventListener('resize', resizeCanvas);
 
     resetVisual();
